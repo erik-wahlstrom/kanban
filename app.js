@@ -6,7 +6,7 @@ var db = pgp('postgres://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2
 var app = express();
 
 app.get('/', function (req, res) {
-  res.send('Hello World!')
+  res.send('Hello World!!')
 })
 
 app.listen(3000, function () {
