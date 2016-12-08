@@ -14,16 +14,14 @@ app.get('/', function (req, res) {
     query.on("row", function (row, result) {
         result.addRow(row);
     });
-/*    query.on("end", function (result) {
-     //   res.send(JSON.stringify(result.rows, null, "    "));
+    query.on("end", function (result) {
+        res.send(JSON.stringify(result.rows, null, "    "));
         console.log(JSON.stringify(result.rows, null, "    "));
         client.end();
         res.end();
 
     });
- */
-   res.end("test 6");
-});
+ });
 
 
 module.exports = app;
