@@ -8,22 +8,21 @@ var app = express();
 app.get('/', function (req, res) {
     var client = new pg.Client(conString);
     var conn = client.connect();
-/*
 
     var query = client.query("select name from state");
 
     query.on("row", function (row, result) {
         result.addRow(row);
     });
-    query.on("end", function (result) {
+/*    query.on("end", function (result) {
      //   res.send(JSON.stringify(result.rows, null, "    "));
         console.log(JSON.stringify(result.rows, null, "    "));
         client.end();
         res.end();
 
     });
-*/    
-    res.end("test 5");
+ */
+   res.end("test 6");
 });
 
 
