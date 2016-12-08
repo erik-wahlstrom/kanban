@@ -1,8 +1,8 @@
 var express = require('express');
 var pg = require('pg');
 
-//var conString = 'pg://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/kanban';
-var conString = 'pg://postgres:@localhost:5432/kanban';
+var conString = 'pg://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/kanban';
+//var conString = 'pg://postgres:@localhost:5432/kanban';
 var app = express();
 
 app.get('/', function (req, res) {
@@ -23,7 +23,7 @@ app.get('/', function (req, res) {
 });
 
 app.listen(80, function () {
-  console.log('Example app listening on port 80!!')
+  console.log('Kanban app listening on port 80!!')
 });
 
 module.exports = app;
