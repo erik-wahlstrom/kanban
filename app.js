@@ -1,27 +1,29 @@
 var express = require('express');
-var pgp = require('pg-promise')(/*options*/)
+var pg = require('pg');
 
-var db = pgp('postgres://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/database')
-
+//var conString = 'pg://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/kanban';
+var conString = 'pg://postgres:@localhost:5432/kanban';
 var app = express();
 
 app.get('/', function (req, res) {
-  res.send('Hello World!!')
+    var client = new pg.Client(conString);
+    var conn = client.connect();
 
-    // select and return user name from id:
-        db.one("select name from state where id=$1", 1)
-            .then(function (state) {
-                res.writeHead(200, {"Content-Type": "text/plain"});
-                res.end(state.name);                
-                console.log(state.name); // print state;
-            })
-            .catch(function (error) {
-                console.log(error); // print why failed;
-            });
-})
+    var query = client.query("select name from state");
 
-app.listen(80, function () {
+    query.on("row", function (row, result) {
+        result.addRow(row);
+    });
+    query.on("end", function (result) {
+        res.send(JSON.stringify(result.rows, null, "    "));
+        console.log(JSON.stringify(result.rows, null, "    "));
+        client.end();
+        res.end();
+    });
+});
+
+app.listen(3000, function () {
   console.log('Example app listening on port 80!!')
-})
+});
 
 module.exports = app;
