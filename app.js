@@ -22,8 +22,5 @@ app.get('/', function (req, res) {
     });
 });
 
-app.listen(80, function () {
-  console.log('Kanban app listening on port 80!!')
-});
 
 module.exports = app;
