@@ -15,12 +15,11 @@ app.get('/', function (req, res) {
         result.addRow(row);
     });
     query.on("end", function (result) {
-        res.send(JSON.stringify(result.rows, null, "    "));
+//        res.send(JSON.stringify(result.rows, null, "    "));
         console.log(JSON.stringify(result.rows, null, "    "));
         client.end();
-        res.end();
-
-    });
+//        res.end();
+  });
  });
 
 
