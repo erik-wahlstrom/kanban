@@ -7,8 +7,8 @@ var app = express();
 
 app.get('/', function (req, res) {
     var client = new pg.Client(conString);
-/*
     var conn = client.connect();
+/*
 
     var query = client.query("select name from state");
 
@@ -23,7 +23,7 @@ app.get('/', function (req, res) {
 
     });
 */    
-    res.end("test 3");
+    res.end("test 5");
 });
 
 
