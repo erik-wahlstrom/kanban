@@ -6,6 +6,7 @@ var conString = 'pg://erik:#Ledville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rd
 var app = express();
 
 app.get('/', function (req, res) {
+/*
     var client = new pg.Client(conString);
     var conn = client.connect();
 
@@ -19,7 +20,10 @@ app.get('/', function (req, res) {
         console.log(JSON.stringify(result.rows, null, "    "));
         client.end();
         res.end();
+
     });
+    */
+    res.end("test1");
 });
 
 
