@@ -11,14 +11,13 @@ app.get('/', function (req, res) {
 
     var query = client.query("select name from state");
 
-    query.on("row", function (row, result) {
-        result.addRow(row);
-    });
-    query.on("end", function (result) {
-//        res.send(JSON.stringify(result.rows, null, "    "));
-        console.log(JSON.stringify(result.rows, null, "    "));
-        client.end();
-//        res.end();
+  // Stream results back one row at a time
+  query.on('row', (row) => {
+    results.push(row);
+  });
+  // After all data is returned, close connection and return results
+  query.on('end', () => {
+    return res.json(results);
   });
  });
 
