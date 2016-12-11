@@ -1,37 +1,34 @@
-var express = require('express');
-var pg = require('pg');
 
-var conString = 'pg://erik:Leadville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/kanban';
+var express = require('express');
+var path = require('path');
+var db = require('./queries');
+var bodyParser = require('body-parser');
+
+var routes = require('./routes/index');
+
+
 
 var app = express();
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-app.get('/', function (req, res) {
-    const results = [];
-    pg.connect(conString, (err, client, done) => {
-        // Handle connection errors
-        if(err) {
-            done();
-            console.log(err);
-            return res.status(500).json({success: false, data: err});
-        }
-        // SQL Query > Select Data
-        const query = client.query('SELECT * FROM state;');
-        // Stream results back one row at a time
-        query.on('row', (row) => {
-            results.push(row);
-        });
-        // After all data is returned, close connection and return results
-        query.on('end', () => {
-            done();
-            return res.json(results);
-        });
-    });
+app.use(bodyParser.json());
+app.use('/public', express.static('public'))
+app.use('/', routes);
+
+app.use( function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
+app.get('/', function (req, res) {
+    res.render('index.ejs', {states: ''})
+});
 
-/*
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
-*/
+
+
 module.exports = app;

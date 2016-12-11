@@ -1,8 +1,56 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+p {
+    display: block;
+    font-family: monospace;
+    margin: 1em 0;
 }
 
-a {
-  color: #00B7FF;
+select, #text   { outline: 1px solid #ccc; padding: 5px; margin: 5px; } 
+.string { color: green; word-wrap: break-word;  word-break: break-all; white-space:pre-wrap} 
+.number { color: darkorange; } .boolean { color: blue; } 
+.null   { color: magenta; } .key { color: red; }      
+                            
+.radiused {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-shadow: 0 0 2pt 1pt  #ccc;
+}        
+
+.outlined {
+    outline: 0px solid #ccc; 
+    padding: 5px; 
+    margin: 5px; 
+    overflow: hidden;
+}     
+
+.background {
+    background-color:slategray;
+}        
+
+
+#div-main { 
+    width: 800px;
+    margin: 0 auto;
+}
+#div-work_item    {
+    width: 500px;
+    min-height: 400px;
+    float: left;
+}
+
+#div-controls  {
+    width: 260px;
+    min-height: 100px;
+    float: left;
+}
+
+.input-label {
+    display: inline-block;
+    width: 140px;
+    text-align: right;      
+}
+
+.input-field {
+    display: table-cell;
+    width:350px;
 }
