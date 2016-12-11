@@ -1,0 +1,19 @@
+var express = require('express');
+var path = require('path');
+var router = express.Router();
+var db = require('../queries');
+
+router.get('/api/work_item', db.getAllWorkItems);
+router.get('/api/work_item/:id', db.getSingleWorkItem);
+router.get('/api/work_items/state/:state_id', db.findWorkItemsByStateId);
+router.post('/api/work_item', db.createWorkItem);
+router.put('/api/work_item/:id', db.updateWorkItem);
+router.delete('/api/work_item/:id', db.removeWorkItem);
+
+router.get('/', function(req, res) {
+      res.render('index.ejs', {states: ''})
+});
+
+
+
+module.exports = router;
