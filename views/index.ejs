@@ -162,7 +162,6 @@
 function AppendTask(columnId, task) {
     var div = document.getElementById(columnId);
     div.task_id = task.id;
-    div.ondblclick= taskDoubleClick;
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
@@ -172,8 +171,15 @@ function AppendTask(columnId, task) {
     var a = li.appendChild(document.createElement("a"));
     a.setAttribute("href", "#");
     a.task = task;
+
+
     var h2 = a.appendChild(document.createElement("h2"));
     h2.appendChild(document.createTextNode("Id: " + task.id));
+    var span = a.appendChild(document.createElement("span"));
+    span.setAttribute("class", "close_x");
+    span.appendChild(document.createTextNode("X"));
+    span.onclick= RemoveTask
+
     var p = a.appendChild(document.createElement("p"));
 
     var person_name = task.person_name ? task.person_name : "(empty)";
@@ -192,11 +198,10 @@ function AppendTask(columnId, task) {
 
     li.addEventListener('dragstart', taskDragStart, false);
     li.addEventListener('drag', taskDrag, false);
-
     return div;
 }
 
-function taskDoubleClick(e) {
+function RemoveTask(e) {
     var parent = FindParent(e.srcElement, "a");
     if (parent) {
         var task_id = parent.task.id;

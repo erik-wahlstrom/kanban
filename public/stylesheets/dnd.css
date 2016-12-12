@@ -9,7 +9,7 @@
 }
 .main_header {
   height: 100px;
-  width: 92% ;
+  width: 91.4% ;
   float: middle ;
   border: 2px solid #666666;
   background-color: #eeeeee;
@@ -155,5 +155,13 @@
                                color-stop(0.50, rgb(255,79,79)),
                                color-stop(1, rgb(150,79,79)));
 
+}
+
+.close_x {
+  color:black; 
+  position:relative; 
+  top:-2.3em; 
+  right:-5.5em;
+  border: 0em;
 }
 
