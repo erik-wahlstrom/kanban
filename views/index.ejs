@@ -135,10 +135,13 @@ function AppendTask(columnId, task) {
 }
 
 function taskDoubleClick(e) {
-    var task_id = e.currentTarget.task_id;
-    if((confirm("Delete task '" + task_id + "'?"))) {
-        var task = {id: task_id, state_id: 4, description: 'Deleted'};
-        DeleteTask(task);
+    var parent = FindParent(e.srcElement, "a");
+    if (parent) {
+        var task_id = parent.task.id;
+        if((confirm("Delete task '" + task_id + "'?"))) {
+            var task = {id: task_id, state_id: 4, description: 'Deleted'};
+            DeleteTask(task);
+        }
     }
 }
 

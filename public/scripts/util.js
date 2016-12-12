@@ -41,3 +41,14 @@ function FormatDate(zdate) {
 
     return monthNames[monthIndex] + ' ' + day + ', ' + year;
 }
+
+function FindParent(node, parentName) {
+    var parent = node;
+    while (parent != null) {
+        if (parent.nodeName.toLowerCase() == parentName.toLowerCase()) {
+            return parent;
+        }
+        parent =parent.parentNode;
+    }
+    return null;
+}
