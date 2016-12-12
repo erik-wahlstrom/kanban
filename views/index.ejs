@@ -176,9 +176,13 @@ function AppendTask(columnId, task) {
     h2.appendChild(document.createTextNode("Id: " + task.id));
     var p = a.appendChild(document.createElement("p"));
 
-    var fields = [ ['Owner', task.person_name, 50]
-        , ['Description', task.description, 140]
-        , ['Created', FormatDate(task.created_date), 50] ];
+    var person_name = task.person_name ? task.person_name : "(empty)";
+    var description = task.description ? task.description : "(empty)";
+    var created_date = task.created_date ? task.created_date : "(empty)";
+
+    var fields = [ ['Owner', person_name, 50]
+        , ['Description', description, 140]
+        , ['Created', FormatDate(created_date), 50] ];
 
     fields.forEach( function(field) {
         var name = p.appendChild(document.createElement("h3"));
