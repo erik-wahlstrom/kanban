@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Kanban!</title>
+    <link  href="http://fonts.googleapis.com/css?family=Reenie+Beanie:regular" 
+        rel="stylesheet"
+        type="text/css">
     <link rel="stylesheet" href="./public/stylesheets/dnd.css">
     <link rel="stylesheet" href="./public/stylesheets/sticky.css">
     <script src="./public/scripts/test.js"></script>
@@ -123,10 +126,18 @@ function AppendTask(columnId, task) {
     var h2 = a.appendChild(document.createElement("h2"));
     h2.appendChild(document.createTextNode("Id: " + task.id));
     var p = a.appendChild(document.createElement("p"));
-    p.appendChild(document.createTextNode("Owner:" + task.person_name));
 
-    var p2 = a.appendChild(document.createElement("p"));
-    p2.appendChild(document.createTextNode("Description: " +  task.description));
+    var fields = [ ['Owner', task.person_name]
+        , ['Description', task.description]
+        , ['Owner', task.person_name]
+        , ['Created', task.created_date]];
+
+    fields.forEach( function(field) {
+        var name = p.appendChild(document.createElement("h3"));
+        name.appendChild(document.createTextNode(field[0] + ": " + field[1]));
+    });
+
+
 
     li.addEventListener('dragstart', taskDragStart, false);
     li.addEventListener('drag', taskDrag, false);
