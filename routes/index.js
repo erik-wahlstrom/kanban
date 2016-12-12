@@ -10,9 +10,9 @@ router.post('/api/work_item', db.createWorkItem);
 router.put('/api/work_item/:id', db.updateWorkItem);
 router.delete('/api/work_item/:id', db.removeWorkItem);
 
-router.get('/', function(req, res) {
-      res.render('index.ejs', {states: ''})
-});
+router.get('/', function(req, res) { res.render('index.ejs', {states: ''})});
+router.get('/manage', function(req, res) { res.render('manage.ejs', {states: ''})});
+
 
 
 

@@ -1,9 +1,13 @@
-// My module
+// My Work Item
 function WorkItem() {
     this.id  = null;
     this.description = null;
     this.created_date = null;
     this.last_update = null;
+    this.person_id = null;
+    this.work_item_group_id = null;
+    this.person_name = null;
+    this.work_item_group_description = null;
     this.success =  function(xhttp){};
     this.error =  function(xhttp){};
 };

@@ -15,6 +15,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use('/public', express.static('public'))
 app.use('/', routes);
+app.use('/manage', routes);
 
 app.use( function(req, res, next) {
     var err = new Error('Not Found');
@@ -22,9 +23,8 @@ app.use( function(req, res, next) {
     next(err);
 });
 
-app.get('/', function (req, res) {
-    res.render('index.ejs', {states: ''})
-});
+
+
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')

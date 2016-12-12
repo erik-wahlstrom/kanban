@@ -22,7 +22,7 @@ module.exports = {
 };
 
 function getAllWorkItems(req, res, next) {
-  db.any('SELECT * FROM work_item')
+  db.any('SELECT wi.*, p.name as person_name, g.description as group_name FROM work_item wi INNER JOIN work_item_group g ON wi.work_item_group_id = g.id INNER JOIN person p on wi.person_id = p.id')
     .then(function (data) {
       res.status(200)
         .json({
@@ -59,7 +59,10 @@ function findWorkItemsByStateId(req, res, next) {
 
 function getSingleWorkItem(req, res, next) {
     var id = parseInt(req.params.id);
-    db.one('SELECT * FROM work_item WHERE id =$1', id)
+    var sql = 'SELECT wi.*, p.name as person_name, g.description as work_item_group_description ' +
+       'FROM work_item wi INNER JOIN work_item_group g ON wi.work_item_group_id = g.id INNER JOIN person p on wi.person_id = p.id WHERE wi.id =$1'
+    console.log(sql + '-->' + id);   
+    db.one(sql, id)
         .then(function (data) {
             res.status(200)
                 .json({
@@ -77,13 +80,17 @@ function createWorkItem(req, res, next) {
     var wi = {
         id: null,
         state_id: 1,
+        work_item_group_id: req.body.work_item_group_id,
+        person_id: req.body.person_id,
         description: req.body.description,
         created_date: new Date(), 
         last_update: new Date()
     };
 
-    db.one('INSERT INTO work_item(state_id, description, created_date, last_update)' +
-        'VALUES(${state_id}, ${description}, ${created_date}, ${last_update}) RETURNING id;',wi)
+    var query = 'INSERT INTO work_item (state_id, work_item_group_id, person_id, description, created_date, last_update) ' +
+        ' VALUES ( ${state_id}, ${work_item_group_id}, ${person_id}, ${description}, ${created_date}, ${last_update}) RETURNING id;'
+    console.log(wi);   
+    db.one(query,wi)
       .then(function (data) {
         wi.id = data.id;
         res.status(200)

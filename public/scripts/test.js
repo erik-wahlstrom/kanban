@@ -1,4 +1,6 @@
-var test = {
+
+var debug = true;
+var test_work_items = {
     "status": "success",
     "data": [{
         "id": 1,
@@ -26,26 +28,26 @@ var test = {
         "last_update": "2016-12-09T08:00:00.000Z"
     }, {
         "id": 8,
-        "state_id": 1,
-        "description": "blah blah blah",
+        "state_id": 2,
+        "description": "This task is active",
         "created_date": "2016-12-09T08:00:00.000Z",
         "last_update": "2016-12-09T08:00:00.000Z"
     }, {
         "id": 9,
-        "state_id": 1,
-        "description": "blah blah blah",
+        "state_id": 2,
+        "description": "So is this",
         "created_date": "2016-12-09T08:00:00.000Z",
         "last_update": "2016-12-09T08:00:00.000Z"
     }, {
         "id": 5,
         "state_id": 4,
-        "description": "This is a new item",
+        "description": "This is a deleted task",
         "created_date": "2016-12-09T08:00:00.000Z",
         "last_update": "2016-12-09T08:00:00.000Z"
     }, {
         "id": 4,
-        "state_id": 4,
-        "description": "This is a test!!!",
+        "state_id": 3,
+        "description": "This is a completed Task",
         "created_date": "2016-12-09T08:00:00.000Z",
         "last_update": "2016-12-09T08:00:00.000Z"
     }, {
