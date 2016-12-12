@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kanban!</title>
+    <link rel="stylesheet" href="./public/stylesheets/style.css">
+    <link rel="stylesheet" href="./public/stylesheets/Modal.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="./public/scripts/WorkItemProxy.js"></script>
+    <script src="./public/scripts/util.js"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    function FindRecordById() {
+        var wi = new WorkItem();
+        wi.id = GetValueById('txt-id');
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            ClearResults();
+            AddDisplayRow(response.data);
+        }
+        wi.FindWorkItem();
+    }
+
+    function FindAllRecords()
+    {
+        ClearResults();
+        var wi = new WorkItem();
+
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            DisplayAllRows(response.data);
+        }
+        wi.FindAllWorkItems();
+        
+    }
+    function CreateRecord() {
+        var wi = new WorkItem();
+        wi.error = function(response) {
+            HandleError("Could not create record(s)", response);
+        }
+        wi.success = function(response) {
+            ClearResults();
+            SetValueById('txt-id', response.data.id);
+            FindRecordById(response.data.id);
+        }
+        wi.description = GetValueById('txt-description');
+        wi.person_id = parseInt(GetValueById('txt-person_id'));
+        wi.work_item_group_id = parseInt(GetValueById('txt-work_item_group_id'));
+        wi.CreateWorkItem();
+    }
+
+
+    function FindByStateId() {
+        var wi = new WorkItem();
+        wi.state_id = GetValueById('txt-state_id');
+
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            ClearResults();
+            DisplayAllRows(response.data);
+        }
+        wi.FindByStateId();
+    }
+
+    function DeleteRecord() {
+        var wi = new WorkItem();
+        wi.id = GetValueById('txt-id');
+
+        wi.error = function(response) {
+            HandleError("Could not update record(s)", response);
+        }
+        wi.success = function(response) {
+            ClearResults();
+            DisplayAllRows();
+        }
+        wi.DeleteWorkItem();
+    }
+
+    /*************************************************************************************
+     ** UI COde
+     *************************************************************************************/
+
+
+    function ClearResults() {
+        document.getElementById('results-tbody').innerHTML = '';
+    }
+
+    function DisplayAllRows(data) {
+        ClearResults();
+        data.forEach( function(result) {
+            AddDisplayRow(result);
+        });
+    }
+
+    function AddDisplayRow(result) {
+        var tbody = document.getElementById('results-tbody');
+        var html = "";
+        html += WrapTag(result.id, "td");
+        html += WrapTag(result.state_id, "td");
+        html += WrapTag(result.person_name, "td");
+        html += WrapTag(result.group_name, "td");
+        html += WrapTag(result.description, "td");
+        html += WrapTag(result.created_date, "td");
+        html += WrapTag(result.created_date, "td");
+        html = WrapTag(html, "tr");
+        html = tbody.innerHTML + html;
+        tbody.innerHTML = html;
+    }
+
+    function WrapTag(str, tag) {
+        return '<' + tag + '>' + str + '</' + tag + '>';
+    }
+    //]]>
+  </script>
+</head>
+<body >
+    <div id='div-main' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
+
+        <div id='div-work_item' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
+            <form style="display: table;">
+                <p style="display: table-row">
+                    <label class="input-label">Id:</label>
+                    <input  id="txt-id" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">Person Id:</label>
+                    <input  id="txt-person_id" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">Work Item Group Id:</label>
+                    <input  id="txt-work_item_group_id" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">State Id:</label>
+                    <input  id="txt-state_id" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">Description:</label>
+                    <input  id="txt-description" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">Created Date:</label>
+                    <input  id="txt-created_date" type="text" class="input-field" /></p>
+                <p style="display: table-row">
+                    <label class="input-label">Last update Date:</label>
+                    <input  id="txt-last_update" type="text" class="input-field" /></p>
+            </form>
+        </div>
+        <div id='div-controls' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
+            <form style="display: table;">
+                <table>
+                    <tbody>
+                        <tr><td><input type="button" value="Create new record" onclick="javascript:CreateRecord();"/></td></tr>
+                        <tr><td><input type="button" value="Find a record by Id" onclick="javascript:FindRecordById();"/></td></tr>
+                        <tr><td><input type="button" value="Update a record" onclick="javascript:UpdateRecords();"/></td></tr>
+                        <tr><td><input type="button" value="Delete a record" onclick="javascript:DeleteRecord();"/></td></tr>
+                        <tr><td><input type="button" value="Find by StateId" onclick="javascript:FindByStateId();"/></td></tr>
+                        <tr><td><input type="button" value="Show All Rows" onclick="javascript:FindAllRecords();"/></td></tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div id='div-results' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Person</th>
+                    <th>Geoup</th>
+                    <th>State</th>
+                    <th>Description</th>
+                    <th>Created Date</th>
+                    <th>Last update Date</th>
+                </tr>
+            </thead>
+            <tbody id='results-tbody'>
+            </tbody>
+        </table>
+    </div>
+  </form>
+</body>
+</html>
