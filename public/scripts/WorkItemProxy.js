@@ -43,6 +43,11 @@ WorkItem.prototype.FindAllWorkItems = function FindAllWorkItems() {
     xhttp.open("GET", "/api/work_item", true);
     xhttp.send();
 }
+WorkItem.prototype.FindWorkItemsByGroup = function FindWorkItemsByGroup() {
+    var xhttp = CreateHttpRequest(this);
+    xhttp.open("GET", "/api/work_items/work_item_group/" + this.work_item_group_id, true);
+    xhttp.send();
+}
 
 
 WorkItem.prototype.FindByStateId = function FindByStateId() {

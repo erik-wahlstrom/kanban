@@ -28,3 +28,16 @@ function Trace() {
     }
 }
 
+var monthNames = [
+    "Jan.", "Feb.", "Mar.",
+    "Apr.", "May", "Jun.", "Jul.",
+    "Aug.", "Sept.", "Oct.",
+    "Nov.", "Dec."
+];
+function FormatDate(zdate) {
+    var year = zdate.substr(0, 4);
+    var monthIndex = parseInt(zdate.substr(5,2)) - 1;
+    var day = zdate.substr(8,2);
+
+    return monthNames[monthIndex] + ' ' + day + ', ' + year;
+}

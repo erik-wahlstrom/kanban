@@ -18,7 +18,9 @@ module.exports = {
   createWorkItem: createWorkItem,
   updateWorkItem: updateWorkItem,
   removeWorkItem: removeWorkItem,
-  findWorkItemsByStateId: findWorkItemsByStateId
+  findWorkItemsByStateId: findWorkItemsByStateId,
+  findWorkItemsByGroupId: findWorkItemsByGroupId,
+  
 };
 
 function getAllWorkItems(req, res, next) {
@@ -57,6 +59,47 @@ function findWorkItemsByStateId(req, res, next) {
     });
 }
 
+
+function findWorkItemsByGroupId(req, res, next) {
+  console.log('findWorkItemsByGroupId');
+  var id = parseInt(req.params.work_item_group_id);
+
+  var sql =  'SELECT wi.*, p.name as person_name, g.description as group_name '
+            + ' FROM work_item wi INNER JOIN work_item_group g ON wi.work_item_group_id = g.id ' 
+            + ' INNER JOIN person p on wi.person_id = p.id '
+            + ' WHERE wi.work_item_group_id = $1'; 
+
+  db.any(sql, [id])
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved ALL work items with state=' + id
+        });
+    })
+    .catch(function (err) {
+        if (handleNoData(err, res)) return;
+        console.log('findWorkItemsByStateId:error');
+        return next(err);
+    });
+}
+
+
+function handleNoData(err, res) {
+    var ret = false;
+    if (err.code == 0) {
+        ret = true;
+        res.status(404)
+            .json({
+                status: 'failure',
+                data: {}, 
+                message: err.message
+            });
+    }
+    return ret;
+}
+
 function getSingleWorkItem(req, res, next) {
     var id = parseInt(req.params.id);
     var sql = 'SELECT wi.*, p.name as person_name, g.description as work_item_group_description ' +
@@ -72,6 +115,7 @@ function getSingleWorkItem(req, res, next) {
                 });
         })
       .catch(function (err) {
+          if (handleNoData(err, res)) return;
           console.log('getSingleWorkItem:error');
           return next(err);
     });

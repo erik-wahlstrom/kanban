@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Kanban!</title>
+<!--
     <link  href="http://fonts.googleapis.com/css?family=Reenie+Beanie:regular" 
         rel="stylesheet"
         type="text/css">
+-->
     <link rel="stylesheet" href="./public/stylesheets/dnd.css">
     <link rel="stylesheet" href="./public/stylesheets/sticky.css">
     <script src="./public/scripts/test.js"></script>
@@ -13,6 +15,14 @@
     <script src="./public/scripts/WorkItemProxy.js"></script>
 </head>
 <body >
+
+    <div class="main_header">
+        <header><h2>The Kanban Board!<h2></header>
+        <table style="color:#000;">
+            <tr><td><strong>User:</strong>&nbsp;</td><td>All</td></tr>
+            <tr><td><strong>Group:</strong>&nbsp;</td><td>Default</td></tr>
+        </table>
+    </div>
     <div id="columns">
     </div>
     <script type="text/javascript">
@@ -23,7 +33,7 @@
                         [1, "not-started", "Not started", true],
                         [2, "active", "Active", true],
                         [3, "complete", "Complete", true],
-                        [4, "deleted", "Deleted", true],
+                        [4, "deleted", "Deleted", false],
                      ];
         for(var i=0; i<states.length; i++) {
             %>stateMapping.push('<%= states[i][1]%>');
@@ -48,14 +58,7 @@
             }
         }
         
-        //InitTasks(test_work_items.data);
-        FindAllRecords();
-
-        var dragSrcEl = null;
-        function columnDragStart(e) { }
-        function columnDrag(e) {  }
-        function columnDragEnter(e) {  }
-        function columnDragLeave(e) {  }
+        FindWorkItemsByGroup(1);
 
         function columnDragOver(e) { 
             if (e.preventDefault) {
@@ -69,24 +72,16 @@
             UpdateState(task, e.target.state_id, e.target.state_name);
         }
 
-        function columnDragEnd(e) { 
-        }
 
         var columns = document.querySelectorAll(".column");
         [].forEach.call(columns, function(column) {
-            column.addEventListener('dragstart', columnDragStart, false);
-            column.addEventListener('drag', columnDrag, false);
-            column.addEventListener('dragenter', columnDragEnter, false);
-            column.addEventListener('dragleave', columnDragLeave, false);
             column.addEventListener('dragover', columnDragOver, false);
             column.addEventListener('drop', columnDrop, false);
-            column.addEventListener('dragend', columnDragEnd, false);
         });
 
         function taskDragStart(e) { 
             // Target (this) element is the source node.
             this.style.opacity = '0.4';
-            dragSrcEl = this;
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
         }
@@ -94,11 +89,6 @@
             // Target (this) element is the source node.
             this.style.opacity = '1.0';
         }
-        function taskDragEnter(e) { }
-        function taskDragLeave(e) { }
-        function taskDragOver(e) { }
-        function taskDrop(e) {  }
-        function taskDragEnd(e) {  }
 
 /***************************************************************/
 /***************************************************************/
@@ -127,25 +117,20 @@ function AppendTask(columnId, task) {
     h2.appendChild(document.createTextNode("Id: " + task.id));
     var p = a.appendChild(document.createElement("p"));
 
-    var fields = [ ['Owner', task.person_name]
-        , ['Description', task.description]
-        , ['Owner', task.person_name]
-        , ['Created', task.created_date]];
+    var fields = [ ['Owner', task.person_name, 50]
+        , ['Description', task.description, 140]
+        , ['Created', FormatDate(task.created_date), 50] ];
 
     fields.forEach( function(field) {
         var name = p.appendChild(document.createElement("h3"));
-        name.appendChild(document.createTextNode(field[0] + ": " + field[1]));
+        var value = field[0] + ": " + field[1].substring(0,field[2]);
+        name.appendChild(document.createTextNode(value));
     });
 
 
 
     li.addEventListener('dragstart', taskDragStart, false);
     li.addEventListener('drag', taskDrag, false);
-    li.addEventListener('dragenter', taskDragEnter, false);
-    li.addEventListener('dragleave', taskDragLeave, false);
-    li.addEventListener('dragover', taskDragOver, false);
-    li.addEventListener('drop', taskDrop, false);
-    li.addEventListener('dragend', taskDragEnd, false);
 
     return div;
 }
@@ -167,7 +152,7 @@ function AppendTask(columnId, task) {
         parent.removeChild(task);
     }
 
-    function FindAllRecords()
+    function FindWorkItemsByGroup(work_item_group_id)
     {
         var wi = new WorkItem();
 
@@ -178,7 +163,8 @@ function AppendTask(columnId, task) {
             ClearTasks();
             InitTasks(response.data);
         }
-        wi.FindAllWorkItems();
+        wi.work_item_group_id = work_item_group_id;
+        wi.FindWorkItemsByGroup();
     }
 
     function InitTasks(arrTasks) {
