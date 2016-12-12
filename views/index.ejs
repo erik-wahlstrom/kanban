@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kanban!</title>
+    <link rel="stylesheet" href="./public/stylesheets/dnd.css">
+    <link rel="stylesheet" href="./public/stylesheets/sticky.css">
+    <script src="./public/scripts/test.js"></script>
+    <script src="./public/scripts/util.js"></script>
+    <script src="./public/scripts/WorkItemProxy.js"></script>
+</head>
+<body >
+    <div id="columns">
+    </div>
+    <script type="text/javascript">
+    //<![CDATA[
+        var stateMapping = [];
+        <%         
+        var states = [  [0, "error", "Error", false], 
+                        [1, "not-started", "Not started", true],
+                        [2, "active", "Active", true],
+                        [3, "complete", "Complete", true],
+                        [4, "deleted", "Deleted", true],
+                     ];
+        for(var i=0; i<states.length; i++) {
+            %>stateMapping.push('<%= states[i][1]%>');
+        CreateColumn('columns', <%= states[i][0] %>, '<%= states[i][1] %>', '<%= states[i][2] %>', <%= states[i][3]%>);
+        <%  } %>
+
+        //<div id="column-not-started" class="column" ><header>Not Started</header></div>
+        function CreateColumn(parentId, state_id, state_name, description, include) {
+            if (include) {
+                var parent = document.getElementById(parentId);
+                var div = parent.appendChild(document.createElement("div"));
+                div.setAttribute("id", "column-" + state_name);
+                div.setAttribute("class", "column");
+                div.setAttribute("draggable", "true");
+                div.state_id = state_id;
+                div.state_name = state_name;
+                var header = div.appendChild(document.createElement("header"));
+                var p = header.appendChild(document.createElement("p"));
+                p.appendChild(document.createTextNode(description));
+                var ul = div.appendChild(document.createElement("ul"));
+
+            }
+        }
+        
+        //InitTasks(test_work_items.data);
+        FindAllRecords();
+
+        var dragSrcEl = null;
+        function columnDragStart(e) { }
+        function columnDrag(e) {  }
+        function columnDragEnter(e) {  }
+        function columnDragLeave(e) {  }
+
+        function columnDragOver(e) { 
+            if (e.preventDefault) {
+                e.preventDefault(); // Necessary. Allows us to drop.
+            }
+        }
+        function columnDrop(e) { 
+            var task = JSON.parse(e.dataTransfer.getData("json"));
+            var columnId = e.id;
+            console.log("Dropping: " + task.description);
+            UpdateState(task, e.target.state_id, e.target.state_name);
+        }
+
+        function columnDragEnd(e) { 
+        }
+
+        var columns = document.querySelectorAll(".column");
+        [].forEach.call(columns, function(column) {
+            column.addEventListener('dragstart', columnDragStart, false);
+            column.addEventListener('drag', columnDrag, false);
+            column.addEventListener('dragenter', columnDragEnter, false);
+            column.addEventListener('dragleave', columnDragLeave, false);
+            column.addEventListener('dragover', columnDragOver, false);
+            column.addEventListener('drop', columnDrop, false);
+            column.addEventListener('dragend', columnDragEnd, false);
+        });
+
+        function taskDragStart(e) { 
+            // Target (this) element is the source node.
+            this.style.opacity = '0.4';
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
+        }
+        function taskDrag(e) { 
+            // Target (this) element is the source node.
+            this.style.opacity = '1.0';
+        }
+        function taskDragEnter(e) { }
+        function taskDragLeave(e) { }
+        function taskDragOver(e) { }
+        function taskDrop(e) {  }
+        function taskDragEnd(e) {  }
+
+/***************************************************************/
+/***************************************************************/
+/** General UI **/
+/***************************************************************/
+/***************************************************************/
+//    <li>
+//      <a href="#">
+//        <h2>Title #1</h2>
+//        <p>Text Content #1</p>
+//      </a>
+//    </li>
+function AppendTask(columnId, task) {
+    var div = document.getElementById(columnId);
+
+    var ul = div.childNodes[1];
+
+    var li = ul.appendChild(document.createElement("li"));
+    li.setAttribute("id","task-" + task.id);
+    li.setAttribute("draggable", "true");
+
+    var a = li.appendChild(document.createElement("a"));
+    a.setAttribute("href", "#");
+    a.task = task;
+    var h2 = a.appendChild(document.createElement("h2"));
+    h2.appendChild(document.createTextNode("Id: " + task.id));
+    var p = a.appendChild(document.createElement("p"));
+    p.appendChild(document.createTextNode("Owner:" + task.person_name));
+
+    var p2 = a.appendChild(document.createElement("p"));
+    p2.appendChild(document.createTextNode("Description: " +  task.description));
+
+    li.addEventListener('dragstart', taskDragStart, false);
+    li.addEventListener('drag', taskDrag, false);
+    li.addEventListener('dragenter', taskDragEnter, false);
+    li.addEventListener('dragleave', taskDragLeave, false);
+    li.addEventListener('dragover', taskDragOver, false);
+    li.addEventListener('drop', taskDrop, false);
+    li.addEventListener('dragend', taskDragEnd, false);
+
+    return div;
+}
+
+
+/***************************************************************/
+/***************************************************************/
+/** Tasks **/
+/***************************************************************/
+/***************************************************************/
+    function ClearTasks()
+    {
+        var tasks = document.querySelectorAll(".task");
+        [].forEach.call(tasks, function(task) {ClearTask(task)});
+    }
+
+    function ClearTask(task) {
+        var parent = task.parentNode;
+        parent.removeChild(task);
+    }
+
+    function FindAllRecords()
+    {
+        var wi = new WorkItem();
+
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            ClearTasks();
+            InitTasks(response.data);
+        }
+        wi.FindAllWorkItems();
+    }
+
+    function InitTasks(arrTasks) {
+        arrTasks.forEach( function(task){ 
+            var column = stateMapping[task.state_id];
+            if (column) {
+                AppendTask("column-" + column, task);
+            }
+        });
+    }
+
+
+    function UpdateState(task, newState, stateName) {
+        //Start doing the DB Update to the new state
+        var wi = new WorkItem();
+        wi.id = task.id;
+        wi.state_id = newState;
+        wi.description = task.description;        
+        task.state_id = newState;
+
+
+        wi.error = function(response) {
+            HandleError("Could not update record: " + wi.id, response);
+        }
+        wi.success = function(response) {
+            //If this was sucessful then 
+            //Delete the old one.
+            var div = document.getElementById("task-" + task.id);
+            ClearTask(div);
+            //Create the new Item
+            AppendTask("column-" + stateName, task );
+        }
+        wi.UpdateWorkItem();
+    }
+
+    //]]>
+  </script>
+</body>
+ 
