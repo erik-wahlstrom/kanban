@@ -103,7 +103,8 @@
 //    </li>
 function AppendTask(columnId, task) {
     var div = document.getElementById(columnId);
-
+    div.task_id = task.id;
+    div.ondblclick= taskDoubleClick;
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
@@ -127,14 +128,19 @@ function AppendTask(columnId, task) {
         name.appendChild(document.createTextNode(value));
     });
 
-
-
     li.addEventListener('dragstart', taskDragStart, false);
     li.addEventListener('drag', taskDrag, false);
 
     return div;
 }
 
+function taskDoubleClick(e) {
+    var task_id = e.currentTarget.task_id;
+    if((confirm("Delete task '" + task_id + "'?"))) {
+        var task = {id: task_id, state_id: 4, description: 'Deleted'};
+        DeleteTask(task);
+    }
+}
 
 /***************************************************************/
 /***************************************************************/
@@ -199,6 +205,26 @@ function AppendTask(columnId, task) {
         }
         wi.UpdateWorkItem();
     }
+    function DeleteTask(task) {
+        //Start doing the DB Update to the new state
+        var wi = new WorkItem();
+        wi.id = task.id;
+        wi.state_id = 4;
+        task.state_id = 4;
+
+
+        wi.error = function(response) {
+            HandleError("Could not update record: " + wi.id, response);
+        }
+        wi.success = function(response) {
+            //If this was sucessful then 
+            //Delete the old one.
+            var div = document.getElementById("task-" + task.id);
+            ClearTask(div);
+        }
+        wi.UpdateWorkItem();
+    }
+
 
     //]]>
   </script>
