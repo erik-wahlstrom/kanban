@@ -176,7 +176,8 @@ function taskDoubleClick(e) {
     function InitTasks(arrTasks) {
         arrTasks.forEach( function(task){ 
             var column = stateMapping[task.state_id];
-            if (column) {
+            var div = document.getElementById("column-" + column);
+            if (div) {
                 AppendTask("column-" + column, task);
             }
         });
@@ -214,14 +215,16 @@ function taskDoubleClick(e) {
 
 
         wi.error = function(response) {
-            HandleError("Could not update record: " + wi.id, response);
+            HandleError("Could not delete record: " + wi.id, response);
         }
         wi.success = function(response) {
             //If this was sucessful then 
             //Delete the old one.
-            var div = document.getElementById("task-" + task.id);
+            var task_div = "task-" + task.id;
+            var div = document.getElementById(task_div);
             ClearTask(div);
         }
+
         wi.UpdateWorkItem();
     }
 
