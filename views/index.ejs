@@ -3,30 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <title>Kanban!</title>
-<!--
-    <link  href="http://fonts.googleapis.com/css?family=Reenie+Beanie:regular" 
-        rel="stylesheet"
-        type="text/css">
--->
     <link rel="stylesheet" href="./public/stylesheets/dnd.css">
     <link rel="stylesheet" href="./public/stylesheets/sticky.css">
+    <link rel="stylesheet" href="./public/stylesheets/modal.css">
     <script src="./public/scripts/test.js"></script>
     <script src="./public/scripts/util.js"></script>
     <script src="./public/scripts/WorkItemProxy.js"></script>
+
 </head>
 <body >
+
+    <div id="modal-add-task" class="modal" >
+        <div class="modal-content"  >
+            <div  style="float:left;">
+                <table>
+                    <tr><td><label class="input-label">Owner:</label></td>
+                        <td>
+                            <select id="sel-owner_id">
+                                <option value="1">Erik</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td><label class="input-label">Group:</label></td>
+                        <td>
+                            <section id="sel-work_item_group_id">
+                                <option value="1">Default</option>
+                            </section>
+                        </td>
+                    </tr>
+                    <tr><td><label class="input-label">Description:</label></td>
+                        <td><input  id="txt-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
+                    <tr><td></td>
+                        <td><input  id="btn-create" type="button" value="Submit" style="float:right" onclick="CreateTask();"/></td></tr>
+                </table>
+            </div>
+            <div  style="float:right;">
+                <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
+            </div>  
+        </div>
+    </div>
 
     <div class="main_header">
         <header><h2>The Kanban Board!<h2></header>
         <table style="color:#000;">
             <tr><td><strong>User:</strong>&nbsp;</td><td>All</td></tr>
             <tr><td><strong>Group:</strong>&nbsp;</td><td>Default</td></tr>
+            <tr><td><strong>Add a task:</strong>&nbsp;</td><td>
+                <input id="btn-add-task" type="button" value="Click me" onclick="javascript:ShowModal();"></input></td></tr>
         </table>
     </div>
     <div id="columns">
     </div>
     <script type="text/javascript">
     //<![CDATA[
+
         var stateMapping = [];
         <%         
         var states = [  [0, "error", "Error", false], 
@@ -39,6 +69,35 @@
             %>stateMapping.push('<%= states[i][1]%>');
         CreateColumn('columns', <%= states[i][0] %>, '<%= states[i][1] %>', '<%= states[i][2] %>', <%= states[i][3]%>);
         <%  } %>
+
+    function CreateTask() {
+        var wi = new WorkItem();
+        wi.error = function(response) {
+            HandleError("Could not create record(s)", response);
+        }
+        wi.success = function(response) {
+            //Add sticky
+            var wi2 = new WorkItem();
+            wi2.id = response.data.id;
+            wi2.error = function(response) {
+                HandleError("Could not retreive record(s)", response);
+            }
+                wi2.success = function(response) {
+                AppendTask( "column-" + stateMapping[response.data.state_id], response.data);
+                closeModal();
+            }
+            wi2.FindWorkItem();
+        }
+        wi.description = GetValueById('txt-description');
+        wi.person_id = parseInt(GetValueById('sel-owner_id'));
+        wi.work_item_group_id = parseInt(GetValueById('sel-owner_id'));
+        wi.CreateWorkItem();
+    }
+
+    function closeModal() {
+        var modal = document.getElementById('modal-add-task');
+        modal.style.display = "none";
+    }
 
         //<div id="column-not-started" class="column" ><header>Not Started</header></div>
         function CreateColumn(parentId, state_id, state_name, description, include) {
@@ -231,6 +290,32 @@ function taskDoubleClick(e) {
         wi.UpdateWorkItem();
     }
 
+    window.onload = function() {
+        var modal = document.getElementById('modal-add-task');
+        var span = document.getElementsByClassName('close')[0];
+
+        // Get the button that opens the modal
+        var btn = document.getElementById('btn-add-task');
+        // When the user clicks on the button, open the modal 
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            closeModal();
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        var closeModal = function() {
+            modal.style.display = "none";
+        }
+    }
 
     //]]>
   </script>

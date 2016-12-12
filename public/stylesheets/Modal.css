@@ -11,17 +11,37 @@
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    color: #000
 }
 
 /* Modal Content */
 .modal-content {
     background-color: #fefefe;
     margin: auto;
-    padding: 20px;
+    padding: 200px;
     border: 1px solid #888;
-    width: 80%;
-}
-
+    list-style:none;
+    text-decoration:none;
+    color:#000;
+    background:#ffc;
+    display:block;
+    height:26em;
+    width:70em;
+    padding:1em;
+    -moz-box-shadow:5px 5px 7px rgba(33,33,33,1);
+    -webkit-box-shadow: 5px 5px 7px rgba(33,33,33,.7);
+    box-shadow: 5px 5px 7px rgba(33,33,33,.7);
+    -moz-transition:-moz-transform .15s linear;
+    -o-transition:-o-transform .15s linear;
+    -webkit-transition:-webkit-transform .15s linear;
+    margin-left:auto;
+    margin-right:auto;
+    font-size:120%;
+    padding-bottom:1px;
+    text-align: left;
+    font-size:60%;
+    overflow: auto;
+    }
 /* The Close Button */
 .close {
     color: #aaaaaa;
