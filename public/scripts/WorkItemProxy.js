@@ -4,6 +4,7 @@ function WorkItem() {
     this.description = null;
     this.created_date = null;
     this.last_update = null;
+    this.due_date = null;
     this.person_id = null;
     this.work_item_group_id = null;
     this.person_name = null;
@@ -26,6 +27,8 @@ function CreateHttpRequest(wi) {
 
 WorkItem.prototype.CreateWorkItem = function CreateWorkItem() {
     var data = JSON.stringify(this);
+    console.log("Create work item: " + data);
+
     var xhttp = CreateHttpRequest(this);
     xhttp.open("POST", "/api/work_item", true);
     xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");

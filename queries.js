@@ -164,11 +164,12 @@ function createWorkItem(req, res, next) {
         person_id: req.body.person_id,
         description: req.body.description,
         created_date: new Date(), 
-        last_update: new Date()
+        last_update: new Date(),
+        due_date: req.body.due_date
     };
 
-    var query = 'INSERT INTO work_item (state_id, work_item_group_id, person_id, description, created_date, last_update) ' +
-        ' VALUES ( ${state_id}, ${work_item_group_id}, ${person_id}, ${description}, ${created_date}, ${last_update}) RETURNING id;'
+    var query = 'INSERT INTO work_item (state_id, work_item_group_id, person_id, description, created_date, due_date, last_update) ' +
+        ' VALUES ( ${state_id}, ${work_item_group_id}, ${person_id}, ${description}, ${created_date}, ${due_date}, ${last_update}) RETURNING id;'
     console.log(wi);   
     db.one(query,wi)
       .then(function (data) {

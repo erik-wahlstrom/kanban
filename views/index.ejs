@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="./public/stylesheets/dnd.css">
     <link rel="stylesheet" href="./public/stylesheets/sticky.css">
     <link rel="stylesheet" href="./public/stylesheets/Modal.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script src="./public/scripts/test.js"></script>
     <script src="./public/scripts/util.js"></script>
     <script src="./public/scripts/WorkItemProxy.js"></script>
@@ -27,6 +31,8 @@
                             <select id="sel-work_item_group_id"></select>
                         </td>
                     </tr>
+                    <tr><td><label class="input-label">Due Date:</label></td>
+                        <td><input  id="txt-due_date" type="text" class="input-field"/></td></tr>
                     <tr><td><label class="input-label">Description:</label></td>
                         <td><input  id="txt-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
                     <tr><td></td>
@@ -90,6 +96,15 @@
         wi.description = GetValueById('txt-description');
         wi.person_id = parseInt(GetValueById('sel-owner_id'));
         wi.work_item_group_id = parseInt(GetValueById('sel-work_item_group_id'));
+        
+        var strDate = GetValueById('txt-due_date');
+        var due_date = null;
+        try { 
+            due_date = new Date(strDate);
+        } catch (e) {
+            due_date = null;
+        } 
+        wi.due_date = due_date;
         wi.CreateWorkItem();
     }
 
@@ -179,20 +194,35 @@ function AppendTask(columnId, task) {
     span.appendChild(document.createTextNode("X"));
     span.onclick= RemoveTask
 
-    var p = a.appendChild(document.createElement("p"));
 
-    var person_name = task.person_name ? task.person_name : "(empty)";
-    var description = task.description ? task.description : "(empty)";
-    var created_date = task.created_date ? task.created_date : "(empty)";
+    var person_name = task.person_name ? task.person_name : null;
+    var description = task.description ? task.description : null;
+    var created_date = task.created_date ? FormatDate(task.created_date) : null;
+    var due_date = task.due_date ? FormatDate(task.due_date) : null;
 
-    var fields = [ ['Owner', person_name, 50]
-        , ['Description', description, 140]
-        , ['Created', FormatDate(created_date), 50] ];
 
+    var fields = [ 
+        ['Owner', person_name, 50]
+        , ['Due', due_date, 50] 
+        , ['Description', description, 200]
+        , ['Created', created_date, 50] 
+        ];
+    
+    //TODO make this work better
+    if (!description) {
+        a.setAttribute("style","display:block;height:6em");
+        a.style.height='6em';
+    } else if (description.length > 50) {
+        a.setAttribute("style","display:block;height:15em");
+        a.style.height='15em';
+    }
+    var t = a.appendChild(document.createElement("pre"));
+    t.setAttribute("style", "white-space: pre-wrap;");
     fields.forEach( function(field) {
-        var name = p.appendChild(document.createElement("h3"));
-        var value = field[0] + ": " + field[1].substring(0,field[2]);
-        name.appendChild(document.createTextNode(value));
+        if (field[1]) {
+            t.appendChild(document.createElement("strong")).appendChild(document.createTextNode(field[0] + ": "));
+            t.appendChild(document.createTextNode(field[1].substring(0,field[2]) + "\n"));
+        }
     });
 
     li.addEventListener('dragstart', taskDragStart, false);
@@ -207,7 +237,7 @@ function RemoveTask(e) {
         var chk = document.getElementById('chk-failsafe');
         if (chk.checked) {
             if(!(confirm("Delete task '" + task_id + "'?"))) {
-            return;
+                return;
              }
         }
         var task = {id: task_id, state_id: 4, description: 'Deleted'};
@@ -250,6 +280,7 @@ function RemoveTask(e) {
         wi.FindWorkItemsByGroup();
     }
 
+
     function InitTasks(arrTasks) {
         arrTasks.forEach( function(task){ 
             var column = stateMapping[task.state_id];
@@ -283,13 +314,14 @@ function RemoveTask(e) {
         }
         wi.UpdateWorkItem();
     }
+
+
     function DeleteTask(task) {
         //Start doing the DB Update to the new state
         var wi = new WorkItem();
         wi.id = task.id;
         wi.state_id = 4;
         task.state_id = 4;
-
 
         wi.error = function(response) {
             HandleError("Could not delete record: " + wi.id, response);
@@ -301,11 +333,11 @@ function RemoveTask(e) {
             var div = document.getElementById(task_div);
             ClearTask(div);
         }
-
         wi.UpdateWorkItem();
     }
 
-    function LoadSelect(id, table, id_col, value_col, orderby, desc) {
+
+    function LoadSelect(id, table, id_col, value_col, orderby, desc, selIdx) {
         var t = new Table();
         t.success = function(response) {
             var sel = document.getElementById(id);
@@ -314,6 +346,7 @@ function RemoveTask(e) {
                 opt.setAttribute("value", row[id_col]);
                 opt.appendChild(document.createTextNode(row[value_col]));
             });
+            sel.selectedIndex = selIdx;
         };
         t.error = function(response) {
             HandleError("Couldn't load " + table);
@@ -347,17 +380,22 @@ function RemoveTask(e) {
             modal.style.display = "none";
         }
 
-        LoadSelect("sel-owner_id", "person", "id", "name", "name", false);
-        LoadSelect("sel-work_item_group_id", "work_item_group", "id", "description", "description", false);
+        LoadSelect("sel-owner_id", "person", "id", "name", "name", false, 1);
+        LoadSelect("sel-work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
 //        LoadSelect("sel-current_owner_id", "person", "id", "name", "name", false);
-        LoadSelect("sel-current_work_item_group_id", "work_item_group", "id", "description", "description", false);
+        LoadSelect("sel-current_work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
         var sel = document.getElementById("sel-current_work_item_group_id");
         sel.onchange = function() {
             var idx = this.selectedIndex;
             FindWorkItemsByGroup(this.options[idx].value);
         }
-        sel.selectedIndex
         FindWorkItemsByGroup(1);
+
+        $( function() {
+            $( "#txt-due_date").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+        } );
 
 
     }
