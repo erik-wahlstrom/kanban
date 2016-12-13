@@ -42,10 +42,13 @@
     <div class="main_header" >
         <header><h2>The Kanban Board!<h2></header>
         <table style="color:#000;">
+<!--
             <tr><td><strong>Owner:</strong>&nbsp;</td><td><select id="sel-current_owner_id"><option value="0">Everyone</option></select></td></tr>
+-->
             <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
             <tr><td><strong>Add a task:</strong>&nbsp;</td><td>
                 <input id="btn-add-task" type="button" value="Click me" onclick="javascript:ShowModal();"></input></td></tr>
+            <tr><td><strong>Failsafe:</strong>&nbsp;</td><td><input  id="chk-failsafe" type="checkbox" value="Submit"  checked="checked"/></td></tr>
         </table>
     </div>
     <div id="columns" class="column_container">
@@ -201,10 +204,14 @@ function RemoveTask(e) {
     var parent = FindParent(e.srcElement, "li");
     if (parent) {
         var task_id = parent.task_id;
-        if((confirm("Delete task '" + task_id + "'?"))) {
-            var task = {id: task_id, state_id: 4, description: 'Deleted'};
-            DeleteTask(task);
+        var chk = document.getElementById('chk-failsafe');
+        if (chk.checked) {
+            if(!(confirm("Delete task '" + task_id + "'?"))) {
+            return;
+             }
         }
+        var task = {id: task_id, state_id: 4, description: 'Deleted'};
+        DeleteTask(task);
     }
 }
 
