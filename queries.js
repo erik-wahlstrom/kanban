@@ -102,7 +102,8 @@ function findWorkItemsByGroupId(req, res, next) {
   var sql =  'SELECT wi.*, p.name as person_name, g.description as group_name '
             + ' FROM work_item wi INNER JOIN work_item_group g ON wi.work_item_group_id = g.id ' 
             + ' INNER JOIN person p on wi.person_id = p.id '
-            + ' WHERE wi.work_item_group_id = $1'; 
+            + ' WHERE wi.work_item_group_id = $1' 
+            + ' ORDER BY CASE WHEN wi.due_date IS NULL THEN 1 ELSE 0 end, wi.due_date DESC';
 
   db.any(sql, [id])
     .then(function (data) {
