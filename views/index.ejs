@@ -64,16 +64,19 @@
 
         var stateMapping = [];
         <%         
-        var states = [  [0, "error", "Error", false], 
-                        [1, "not-started", "Not started", true],
-                        [2, "active", "Active", true],
-                        [3, "complete", "Complete", true],
-                        [4, "deleted", "Deleted", false],
+        var states = [  {id:0, name:"error", description:"Error", include:false, age:null}, 
+                        {id:1, name:"not-started", description:"Not started", include:true, age:null},
+                        {id:2, name:"active", description:"Active", include:true, age:null},
+                        {id:3, name:"complete", description:"Complete", include:true, age:2},
+                        {id:4, name:"deleted", description:"Deleted", include:false, age:null},
                      ];
         for(var i=0; i<states.length; i++) {
-            %>stateMapping.push('<%= states[i][1]%>');
-        CreateColumn('columns', <%= states[i][0] %>, '<%= states[i][1] %>', '<%= states[i][2] %>', <%= states[i][3]%>);
-        <%  } %>
+            var str = `{id:${states[i].id}, name:"${states[i].name}", display:"${states[i].display}", include:${states[i].include}, age:${states[i].age}}`;
+            %> stateMapping.push(<%- str %>);
+            <% } %>
+        stateMapping.forEach( function(column) { 
+            CreateColumn('columns', column); 
+        });
 
     function CreateTask() {
         var wi = new WorkItem();
@@ -88,7 +91,7 @@
                 HandleError("Could not retreive record(s)", response);
             }
                 wi2.success = function(response) {
-                AppendTask( "column-" + stateMapping[response.data.state_id], response.data);
+                AppendTask( stateMapping[response.data.state_id], response.data);
                 closeModal();
             }
             wi2.FindWorkItem();
@@ -114,20 +117,19 @@
     }
 
     //<div id="column-not-started" class="column" ><header>Not Started</header></div>
-    function CreateColumn(parentId, state_id, state_name, description, include) {
-        if (include) {
+    function CreateColumn(parentId, column) {
+        if (column.include) {
             var parent = document.getElementById(parentId);
             var div = parent.appendChild(document.createElement("div"));
-            div.setAttribute("id", "column-" + state_name);
+            div.setAttribute("id", "column-" + column.name);
             div.setAttribute("class", "column");
             div.setAttribute("draggable", "true");
-            div.state_id = state_id;
-            div.state_name = state_name;
+            div.state_id = column.id;
+            div.state_name = column.name;
             var header = div.appendChild(document.createElement("header"));
             var p = header.appendChild(document.createElement("p"));
-            p.appendChild(document.createTextNode(description));
+            p.appendChild(document.createTextNode(column.description));
             var ul = div.appendChild(document.createElement("ul"));
-
         }
     }
         
@@ -174,8 +176,8 @@
 //        <p>Text Content #1</p>
 //      </a>
 //    </li>
-function AppendTask(columnId, task) {
-    var div = document.getElementById(columnId);
+function AppendTask(column, task) {
+    var div = document.getElementById("column-" + column.name);
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
@@ -204,7 +206,7 @@ function AppendTask(columnId, task) {
     var color = null;
     if (task.due_date)
     {
-        var due = Date.parse(due_date);
+        var due = new Date(due_date);
         if (IsTodayOrInPast(due)) color = "red";  
     } 
 
@@ -296,9 +298,9 @@ function RemoveTask(e) {
     function InitTasks(arrTasks) {
         arrTasks.forEach( function(task){ 
             var column = stateMapping[task.state_id];
-            var div = document.getElementById("column-" + column);
+            var div = document.getElementById("column-" + column.name);
             if (div) {
-                AppendTask("column-" + column, task);
+                AppendTask(column, task);
             }
         });
     }
@@ -322,7 +324,7 @@ function RemoveTask(e) {
             var div = document.getElementById("task-" + task.id);
             ClearTask(div);
             //Create the new Item
-            AppendTask("column-" + stateName, task );
+            AppendTask(stateMapping[newState], task );
         }
         wi.UpdateWorkItem();
     }
