@@ -175,16 +175,18 @@
 //    </li>
 function AppendTask(columnId, task) {
     var div = document.getElementById(columnId);
-
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
+    li.task = task;
     li.setAttribute("id","task-" + task.id);
     li.setAttribute("draggable", "true");
     li.task_id = task.id;
+
     var a = li.appendChild(document.createElement("a"));
+
     a.setAttribute("href", "#");
-    a.task = task;
+
 
 
     var h2 = a.appendChild(document.createElement("h2"));
