@@ -162,6 +162,7 @@
             this.style.opacity = '1.0';
         }
 
+
 /***************************************************************/
 /***************************************************************/
 /** General UI **/
@@ -202,20 +203,26 @@ function AppendTask(columnId, task) {
     var created_date = task.created_date ? FormatDate(task.created_date) : null;
     var due_date = task.due_date ? FormatDate(task.due_date) : null;
 
+    var color = null;
+    if (task.due_date)
+    {
+        var due = Date.parse(due_date);
+        if (IsTodayOrInPast(due)) color = "red";  
+    } 
 
     var fields = [ 
         ['Owner', person_name, 50]
-        , ['Due', due_date, 50] 
+        , ['Due', due_date, 50, color] 
         , ['Description', description, 200]
         , ['Created', created_date, 50] 
         ];
     
     //TODO make this work better
     if (!description) {
-        a.setAttribute("style","display:block;height:6em");
+        a.setAttribute("style","display:block;height:6em;");
         a.style.height='6em';
     } else if (description.length > 50) {
-        a.setAttribute("style","display:block;height:15em");
+        a.setAttribute("style","display:block;height:15em;");
         a.style.height='15em';
     }
     var t = a.appendChild(document.createElement("pre"));
@@ -223,6 +230,11 @@ function AppendTask(columnId, task) {
     fields.forEach( function(field) {
         if (field[1]) {
             t.appendChild(document.createElement("strong")).appendChild(document.createTextNode(field[0] + ": "));
+            if (field[3]) {
+                var style= a.getAttribute("style")
+                a.setAttribute("style",style + "color:" + color + ";");
+                a.style.color=color;   
+            }
             t.appendChild(document.createTextNode(field[1].substring(0,field[2]) + "\n"));
         }
     });

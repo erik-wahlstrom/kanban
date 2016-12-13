@@ -52,3 +52,12 @@ function FindParent(node, parentName) {
     }
     return null;
 }
+
+function IsTodayOrInPast(test) {
+    var now = new Date();
+    if (now > test) return true;
+    return now.getFullYear() == test.getFullYear()
+        && now.getMonth() == test.getMonth()
+        && now.getDate() == test.getDate();
+
+}
