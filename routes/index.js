@@ -10,6 +10,9 @@ router.get('/api/work_items/work_item_group/:work_item_group_id', db.findWorkIte
 router.post('/api/work_item', db.createWorkItem);
 router.put('/api/work_item/:id', db.updateWorkItem);
 router.delete('/api/work_item/:id', db.removeWorkItem);
+router.get('/api/find/:table', db.selectStar);
+router.get('/api/find/:table/:orderby', db.selectStar);
+router.get('/api/find/:table/:orderby/:desc', db.selectStar);
 
 
 router.get('/', function(req, res) { res.render('index.ejs', {states: ''})});

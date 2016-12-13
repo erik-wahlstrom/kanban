@@ -1,3 +1,4 @@
+/*
 p {
     display: block;
     font-family: monospace;
@@ -5,9 +6,6 @@ p {
 }
 
 select, #text   { outline: 1px solid #ccc; padding: 5px; margin: 5px; } 
-.string { color: green; word-wrap: break-word;  word-break: break-all; white-space:pre-wrap} 
-.number { color: darkorange; } .boolean { color: blue; } 
-.null   { color: magenta; } .key { color: red; }      
                             
 .radiused {
     -webkit-border-radius: 3px;
@@ -18,18 +16,18 @@ select, #text   { outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 
 .outlined {
     outline: 0px solid #ccc; 
-    padding: 5px; 
+    padding: 1px; 
     margin: 5px; 
     overflow: hidden;
 }     
 
 .background {
-    background-color:slategray;
+    background-color:#ddd ;
 }        
 
 
 #div-main { 
-    width: 800px;
+    width: 100px;
     margin: 0 auto;
 }
 #div-work_item    {
@@ -54,3 +52,4 @@ select, #text   { outline: 1px solid #ccc; padding: 5px; margin: 5px; }
     display: table-cell;
     width:350px;
 }
+*/

@@ -20,9 +20,43 @@ module.exports = {
   removeWorkItem: removeWorkItem,
   findWorkItemsByStateId: findWorkItemsByStateId,
   findWorkItemsByGroupId: findWorkItemsByGroupId,
-  
+  selectStar: selectStar
 };
 
+function selectStar(req, res, next) {
+    if (req.params.table == null) {
+        err = {code: 403,  responseText: "Table is null"};
+        next(err);
+        return;
+    }
+    if (req.params.desc) {
+        if ('true' ===  req.params.desc) req.params.desc = true;
+        else if ('false' ===  req.params.desc) req.params.desc = false;
+        else {
+            err = {code: 403,  responseText: "Desc is not a boolean"};
+            next(err);
+            return;
+        }
+    }
+
+    var sql = "SELECT * FROM " + req.params.table;
+    if (req.params.orderby != null) sql += " ORDER BY " + req.params.orderby ;
+    if (req.params.desc) sql += " DESC" ;
+
+    db.any(sql, req.params)
+        .then(function (data) {
+        res.status(200)
+            .json({
+            status: 'success',
+            data: data,
+            message: 'Retrieved ALL ' + req.params.table
+            });
+        })
+        .catch(function (err) {
+            if (handleNoData(err, res)) return;
+            return next(err);
+        });
+}
 function getAllWorkItems(req, res, next) {
   db.any('SELECT wi.*, p.name as person_name, g.description as group_name FROM work_item wi INNER JOIN work_item_group g ON wi.work_item_group_id = g.id INNER JOIN person p on wi.person_id = p.id')
     .then(function (data) {
@@ -54,6 +88,7 @@ function findWorkItemsByStateId(req, res, next) {
         });
     })
     .catch(function (err) {
+        if (handleNoData(err, res)) return;
         console.log('findWorkItemsByStateId:error');
         return next(err);
     });
@@ -97,6 +132,7 @@ function handleNoData(err, res) {
                 message: err.message
             });
     }
+    console.log(err);
     return ret;
 }
 

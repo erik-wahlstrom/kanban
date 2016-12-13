@@ -9,6 +9,7 @@
     <script src="./public/scripts/test.js"></script>
     <script src="./public/scripts/util.js"></script>
     <script src="./public/scripts/WorkItemProxy.js"></script>
+    <script src="./public/scripts/Table.js"></script>
 
 </head>
 <body >
@@ -18,16 +19,12 @@
                 <table>
                     <tr><td><label class="input-label">Owner:</label></td>
                         <td>
-                            <select id="sel-owner_id">
-                                <option value="1">Erik</option>
-                            </select>
+                            <select id="sel-owner_id"></select>
                         </td>
                     </tr>
                     <tr><td><label class="input-label">Group:</label></td>
                         <td>
-                            <section id="sel-work_item_group_id">
-                                <option value="1">Default</option>
-                            </section>
+                            <select id="sel-work_item_group_id"></select>
                         </td>
                     </tr>
                     <tr><td><label class="input-label">Description:</label></td>
@@ -42,16 +39,16 @@
         </div>
     </div>
 
-    <div class="main_header">
+    <div class="main_header" >
         <header><h2>The Kanban Board!<h2></header>
         <table style="color:#000;">
-            <tr><td><strong>User:</strong>&nbsp;</td><td>All</td></tr>
-            <tr><td><strong>Group:</strong>&nbsp;</td><td>Default</td></tr>
+            <tr><td><strong>Owner:</strong>&nbsp;</td><td><select id="sel-current_owner_id"><option value="0">Everyone</option></select></td></tr>
+            <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
             <tr><td><strong>Add a task:</strong>&nbsp;</td><td>
                 <input id="btn-add-task" type="button" value="Click me" onclick="javascript:ShowModal();"></input></td></tr>
         </table>
     </div>
-    <div id="columns">
+    <div id="columns" class="column_container">
     </div>
     <script type="text/javascript">
     //<![CDATA[
@@ -89,7 +86,7 @@
         }
         wi.description = GetValueById('txt-description');
         wi.person_id = parseInt(GetValueById('sel-owner_id'));
-        wi.work_item_group_id = parseInt(GetValueById('sel-owner_id'));
+        wi.work_item_group_id = parseInt(GetValueById('sel-work_item_group_id'));
         wi.CreateWorkItem();
     }
 
@@ -98,25 +95,24 @@
         modal.style.display = "none";
     }
 
-        //<div id="column-not-started" class="column" ><header>Not Started</header></div>
-        function CreateColumn(parentId, state_id, state_name, description, include) {
-            if (include) {
-                var parent = document.getElementById(parentId);
-                var div = parent.appendChild(document.createElement("div"));
-                div.setAttribute("id", "column-" + state_name);
-                div.setAttribute("class", "column");
-                div.setAttribute("draggable", "true");
-                div.state_id = state_id;
-                div.state_name = state_name;
-                var header = div.appendChild(document.createElement("header"));
-                var p = header.appendChild(document.createElement("p"));
-                p.appendChild(document.createTextNode(description));
-                var ul = div.appendChild(document.createElement("ul"));
+    //<div id="column-not-started" class="column" ><header>Not Started</header></div>
+    function CreateColumn(parentId, state_id, state_name, description, include) {
+        if (include) {
+            var parent = document.getElementById(parentId);
+            var div = parent.appendChild(document.createElement("div"));
+            div.setAttribute("id", "column-" + state_name);
+            div.setAttribute("class", "column");
+            div.setAttribute("draggable", "true");
+            div.state_id = state_id;
+            div.state_name = state_name;
+            var header = div.appendChild(document.createElement("header"));
+            var p = header.appendChild(document.createElement("p"));
+            p.appendChild(document.createTextNode(description));
+            var ul = div.appendChild(document.createElement("ul"));
 
-            }
         }
+    }
         
-        FindWorkItemsByGroup(1);
 
         function columnDragOver(e) { 
             if (e.preventDefault) {
@@ -161,13 +157,13 @@
 //    </li>
 function AppendTask(columnId, task) {
     var div = document.getElementById(columnId);
-    div.task_id = task.id;
+
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
     li.setAttribute("id","task-" + task.id);
     li.setAttribute("draggable", "true");
-
+    li.task_id = task.id;
     var a = li.appendChild(document.createElement("a"));
     a.setAttribute("href", "#");
     a.task = task;
@@ -202,9 +198,9 @@ function AppendTask(columnId, task) {
 }
 
 function RemoveTask(e) {
-    var parent = FindParent(e.srcElement, "a");
+    var parent = FindParent(e.srcElement, "li");
     if (parent) {
-        var task_id = parent.task.id;
+        var task_id = parent.task_id;
         if((confirm("Delete task '" + task_id + "'?"))) {
             var task = {id: task_id, state_id: 4, description: 'Deleted'};
             DeleteTask(task);
@@ -219,8 +215,12 @@ function RemoveTask(e) {
 /***************************************************************/
     function ClearTasks()
     {
-        var tasks = document.querySelectorAll(".task");
-        [].forEach.call(tasks, function(task) {ClearTask(task)});
+        var tasks = document.querySelectorAll("li");
+        [].forEach.call(tasks, function(task) {
+            if (task.task_id) {
+                ClearTask(task);
+            }
+        });
     }
 
     function ClearTask(task) {
@@ -298,6 +298,22 @@ function RemoveTask(e) {
         wi.UpdateWorkItem();
     }
 
+    function LoadSelect(id, table, id_col, value_col, orderby, desc) {
+        var t = new Table();
+        t.success = function(response) {
+            var sel = document.getElementById(id);
+            response.data.forEach( function(row) {
+                var opt = sel.appendChild(document.createElement("option"));
+                opt.setAttribute("value", row[id_col]);
+                opt.appendChild(document.createTextNode(row[value_col]));
+            });
+        };
+        t.error = function(response) {
+            HandleError("Couldn't load " + table);
+        };
+        t.SelectStar(table, orderby, desc);
+    }
+
     window.onload = function() {
         var modal = document.getElementById('modal-add-task');
         var span = document.getElementsByClassName('close')[0];
@@ -323,6 +339,20 @@ function RemoveTask(e) {
         var closeModal = function() {
             modal.style.display = "none";
         }
+
+        LoadSelect("sel-owner_id", "person", "id", "name", "name", false);
+        LoadSelect("sel-work_item_group_id", "work_item_group", "id", "description", "description", false);
+//        LoadSelect("sel-current_owner_id", "person", "id", "name", "name", false);
+        LoadSelect("sel-current_work_item_group_id", "work_item_group", "id", "description", "description", false);
+        var sel = document.getElementById("sel-current_work_item_group_id");
+        sel.onchange = function() {
+            var idx = this.selectedIndex;
+            FindWorkItemsByGroup(this.options[idx].value);
+        }
+        sel.selectedIndex
+        FindWorkItemsByGroup(1);
+
+
     }
 
     //]]>
