@@ -44,16 +44,43 @@
             </div>  
         </div>
     </div>
+    <div id="modal-update-task" class="modal" >
+        <div class="modal-content"  >
+            <div  style="float:left;">
+                <table>
+                    <tr><td><label class="input-label">Id:</label></td>
+                        <td><input  id="txt-update-id" type="text" class="input-field" readonly="readonly"/></td></tr>
+                    <tr><td><label class="input-label">Owner:</label></td>
+                        <td>
+                            <select id="sel-update-owner_id"></select>
+                        </td>
+                    </tr>
+                    <tr><td><label class="input-label">Group:</label></td>
+                        <td>
+                            <select id="sel-update-work_item_group_id"></select>
+                        </td>
+                    </tr>
+                    <tr><td><label class="input-label">Due Date:</label></td>
+                        <td><input  id="txt-update-due_date" type="text" class="input-field"/></td></tr>
+                    <tr><td><label class="input-label">Description:</label></td>
+                        <td><input  id="txt-update-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
+                    <tr><td></td>
+                        <td><input  id="btn-update" type="button" value="Submit" style="float:right" onclick="UpdateTheTask();"/></td></tr>
+                </table>
+            </div>
+            <div  style="float:right;">
+                <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
+            </div>  
+        </div>
+    </div>
 
     <div class="main_header" >
         <header><h2>The Kanban Board!<h2></header>
         <table style="color:#000;">
-<!--
-            <tr><td><strong>Owner:</strong>&nbsp;</td><td><select id="sel-current_owner_id"><option value="0">Everyone</option></select></td></tr>
--->
             <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
-            <tr><td><strong>Add a task:</strong>&nbsp;</td><td>
-                <input id="btn-add-task" type="button" value="Click me" onclick="javascript:ShowModal();"></input></td></tr>
+            <tr><td><strong>Add a new task</strong>&nbsp;</td><td>
+                <input id="btn-add-task" type="button" value="Add" ></input>
+                </td></tr>
             <tr><td><strong>Failsafe:</strong>&nbsp;</td><td><input  id="chk-failsafe" type="checkbox" value="Submit"  checked="checked"/></td></tr>
         </table>
     </div>
@@ -188,14 +215,17 @@ function AppendTask(column, task) {
     a.task = task;
     a.setAttribute("href", "#");
 
-
-
     var h2 = a.appendChild(document.createElement("h2"));
     h2.appendChild(document.createTextNode("Id: " + task.id));
     var span = a.appendChild(document.createElement("span"));
     span.setAttribute("class", "close_x");
     span.appendChild(document.createTextNode("X"));
     span.onclick= RemoveTask
+
+    span = a.appendChild(document.createElement("span"));
+    span.setAttribute("class", "close_x");
+    span.appendChild(document.createTextNode("?"));
+    span.onclick= ShowUpdateUi;
 
 
     var person_name = task.person_name ? task.person_name : null;
@@ -259,6 +289,25 @@ function RemoveTask(e) {
     }
 }
 
+function ShowUpdateUi(e) {
+    var parent = FindParent(e.srcElement, "li");
+    if (parent) {
+        var task_id = parent.task_id;
+        var wi = new WorkItem();
+        wi.id = task_id
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            SetValueById("txt-update-id", response.data.id);
+            SetValueById("txt-update-due_date", response.data.due_date);
+            SetValueById("txt-update-description", response.data.description);
+        }
+        wi.FindWorkItem();
+    }
+
+    ShowModal('update');
+}
 /***************************************************************/
 /***************************************************************/
 /** Tasks **/
@@ -368,36 +417,61 @@ function RemoveTask(e) {
         t.SelectStar(table, orderby, desc);
     }
 
+    function ShowModal(name) {
+        var modalAdd = document.getElementById('modal-add-task');
+        var modalUpdate = document.getElementById('modal-update-task');
+
+        modalUpdate.style.display = "none";
+        modalAdd.style.display = "none";
+
+        var modal = document.getElementById('modal-' + name + '-task');
+        modal.style.display = "block";
+
+    }
+
+
     window.onload = function() {
-        var modal = document.getElementById('modal-add-task');
+        var modalAdd = document.getElementById('modal-add-task');
+        var modalUpdate = document.getElementById('modal-update-task');
         var span = document.getElementsByClassName('close')[0];
+
+        var Xs = document.querySelectorAll(".close");
 
         // Get the button that opens the modal
         var btn = document.getElementById('btn-add-task');
-        // When the user clicks on the button, open the modal 
         btn.onclick = function() {
-            modal.style.display = "block";
-        }
+            ShowModal('add');
+        };
+
         // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            closeModal();
-        }
+        [].forEach.call(Xs, function(x) {
+            x.onclick = function() {
+                closeModal();
+            };
+        });
 
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = function(event) {
-            if (event.target == modal) {
+            if (event.target == modalAdd) {
+                closeModal();
+            }
+            if (event.target == modalAdd) {
                 closeModal();
             }
         }
 
         var closeModal = function() {
-            modal.style.display = "none";
+            modalUpdate.style.display = "none";
+            modalAdd.style.display = "none";
         }
 
         LoadSelect("sel-owner_id", "person", "id", "name", "name", false, 1);
         LoadSelect("sel-work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
-//        LoadSelect("sel-current_owner_id", "person", "id", "name", "name", false);
         LoadSelect("sel-current_work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
+        LoadSelect("sel-update-owner_id", "person", "id", "name", "name", false, 1);
+        LoadSelect("sel-update-work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
+
+
         var sel = document.getElementById("sel-current_work_item_group_id");
         sel.onchange = function() {
             var idx = this.selectedIndex;
@@ -409,6 +483,10 @@ function RemoveTask(e) {
             $( "#txt-due_date").datepicker({
                 dateFormat: "yy-mm-dd"
             });
+            $( "#txt-update-due_date").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+
         } );
 
 
