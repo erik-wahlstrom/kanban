@@ -13,10 +13,11 @@ router.delete('/api/work_item/:id', db.removeWorkItem);
 router.get('/api/find/:table', db.selectStar);
 router.get('/api/find/:table/:orderby', db.selectStar);
 router.get('/api/find/:table/:orderby/:desc', db.selectStar);
+router.get('/api/find_one/string/:table/:column/:value', db.findOne);
 
 
-router.get('/', function(req, res) { res.render('index.ejs', {states: ''})});
-router.get('/manage', function(req, res) { res.render('manage.ejs', {states: ''})});
+router.get('/', function(req, res, next) { res.render('index.ejs', {req: req, res: res, states: ''})});
+router.get('/manage', function(req, res, next) { res.render('manage.ejs', {req: req, res: res, states: ''})});
 
 
 

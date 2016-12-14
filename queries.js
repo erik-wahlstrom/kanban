@@ -20,7 +20,8 @@ module.exports = {
   removeWorkItem: removeWorkItem,
   findWorkItemsByStateId: findWorkItemsByStateId,
   findWorkItemsByGroupId: findWorkItemsByGroupId,
-  selectStar: selectStar
+  selectStar: selectStar,
+  findOne: findOne
 };
 
 function selectStar(req, res, next) {
@@ -84,7 +85,7 @@ function findWorkItemsByStateId(req, res, next) {
         .json({
           status: 'success',
           data: data,
-          message: 'Retrieved ALL work items with state=' + id
+          message: 'Retrieved one work items with state=' + id
         });
     })
     .catch(function (err) {
@@ -94,6 +95,35 @@ function findWorkItemsByStateId(req, res, next) {
     });
 }
 
+
+function findOne(req, res, next) {
+  console.log('findOne');
+
+  var data = { 
+      table: req.params.table,
+      column: req.params.column,
+      value: req.params.value
+  };
+
+
+  var sql =  'SELECT * FROM ' + data.table + ' WHERE ' + data.column + ' = ${value}';
+  console.log("dta : " + JSON.stringify(data));
+    console.log("sql : " + sql);
+  db.one(sql, data)
+    .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved one item.'
+        });
+    })
+    .catch(function (err) {
+        if (handleNoData(err, res)) return;
+        console.log('findOne:error');
+        return next(err);
+    });
+}
 
 function findWorkItemsByGroupId(req, res, next) {
   console.log('findWorkItemsByGroupId');

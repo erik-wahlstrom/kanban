@@ -77,6 +77,7 @@
     <div class="main_header" >
         <header><h2>The Kanban Board!<h2></header>
         <table style="color:#000;">
+            <tr><td><strong>Owner:</strong>&nbsp;</td><td><input id="person_name" type="text" disabled="disabled"/></td></tr>
             <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
             <tr><td><strong>Add a new task</strong>&nbsp;</td><td>
                 <input id="btn-add-task" type="button" value="Add" ></input>
@@ -89,8 +90,10 @@
     <script type="text/javascript">
     //<![CDATA[
 
+    var fbId = "<%= req.cookies.user_id %>";
         var stateMapping = [];
         <%         
+
         var states = [  {id:0, name:"error", description:"Error", include:false, age:null}, 
                         {id:1, name:"not-started", description:"Not started", include:true, age:null},
                         {id:2, name:"active", description:"Active", include:true, age:null},
@@ -101,7 +104,7 @@
             var str = `{id:${states[i].id}, name:"${states[i].name}", description:"${states[i].description}", include:${states[i].include}, age:${states[i].age}}`;
             %> stateMapping.push(<%- str %>);
             <% } %>
-        stateMapping.forEach( function(column) { 
+            stateMapping.forEach( function(column) { 
             CreateColumn('columns', column); 
         });
 
@@ -159,36 +162,47 @@
     }
         
 
-        function columnDragOver(e) { 
-            if (e.preventDefault) {
-                e.preventDefault(); // Necessary. Allows us to drop.
-            }
+    function columnDragOver(e) { 
+        if (e.preventDefault) {
+            e.preventDefault(); // Necessary. Allows us to drop.
         }
-        function columnDrop(e) { 
-            var task = JSON.parse(e.dataTransfer.getData("json"));
-            var columnId = e.id;
-            console.log("Dropping: " + task.description);
-            UpdateState(task, e.target.state_id, e.target.state_name);
-        }
+    }
+    function columnDrop(e) { 
+        var task = JSON.parse(e.dataTransfer.getData("json"));
+        var columnId = e.id;
+        console.log("Dropping: " + task.description);
+        UpdateState(task, e.target.state_id, e.target.state_name);
+    }
 
 
-        var columns = document.querySelectorAll(".column");
-        [].forEach.call(columns, function(column) {
-            column.addEventListener('dragover', columnDragOver, false);
-            column.addEventListener('drop', columnDrop, false);
-        });
+    var columns = document.querySelectorAll(".column");
+    [].forEach.call(columns, function(column) {
+        column.addEventListener('dragover', columnDragOver, false);
+        column.addEventListener('drop', columnDrop, false);
+    });
 
-        function taskDragStart(e) { 
-            // Target (this) element is the source node.
-            this.style.opacity = '0.4';
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
-        }
-        function taskDrag(e) { 
-            // Target (this) element is the source node.
-            this.style.opacity = '1.0';
-        }
+    function taskDragStart(e) { 
+        // Target (this) element is the source node.
+        this.style.opacity = '0.4';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
+    }
+    function taskDrag(e) { 
+        // Target (this) element is the source node.
+        this.style.opacity = '1.0';
+    }
 
+
+function LookupUser() {
+    var t = new Table();
+    t.success = function(response) {
+        SetValueById("person_name", response.data.name);
+    };
+    t.error = function(response) {
+        HandleError("Couldn't load person");
+    };
+    t.FindOne('person', 'fb_id', fbId);    
+}
 
 /***************************************************************/
 /***************************************************************/
@@ -486,6 +500,8 @@ function ShowUpdateUi(e) {
             });
 
         } );
+
+        LookupUser();
 
 
     }

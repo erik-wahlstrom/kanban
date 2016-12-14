@@ -33,6 +33,32 @@ Table.prototype.SelectStar = function SelectStar(table, orderby, desc) {
     xhttp.send();
 }
 
+Table.prototype.FindOne = function FindOne(table, column, value) {
+    if (!table) {
+        this.error("Table is null");
+        return;
+    }
+    if (!column) {
+        this.error("column is null");
+        return;
+    }
+    if (!value) {
+        this.error("value is null");
+        return;
+    }
+
+    console.log("SelectStar");
+    var url = "/api/find_one/string/" + table;
+
+    
+    url += "/" + column;
+    url += "/" + value;
+
+   console.log("url " + url ); 
+    var xhttp = CreateHttpRequest(this);
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
     module.exports = Table;
