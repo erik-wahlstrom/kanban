@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="./stylesheets/style.css"></link>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+            </div>
+            <div class="data">
+                <p><a href="#" onClick="logInWithFacebook()">Log In with the JavaScript SDK</a></p>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">
+    //<![CDATA[
+
+        function readAccessToken(token) {
+            window.location = "/";
+        }
+
+        function logInWithFacebook() {
+            FB.login(function(response) {
+            if (response.authResponse) {
+                console.log(JSON.stringify(response));
+                
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        readAccessToken(xhttp);
+                    } else if (this.readyState == 4 && this.status == 200) {
+                        alert("#fail");
+                    };
+                }
+                xhttp.open("POST", "/auth"); 
+                xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                xhttp.send(JSON.stringify(response.authResponse));
+            } else {
+                alert('User cancelled login or did not fully authorize.');
+            }
+            });
+            return false;
+        };
+
+        window.fbAsyncInit = function() {
+            FB.init({
+            appId      : '1817608658520724',
+            xfbml      : true,
+            version    : 'v2.8'
+            });
+            FB.AppEvents.logPageView();
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+       // ]]>
+    </script>    
+</html>
