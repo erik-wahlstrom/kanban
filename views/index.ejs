@@ -98,7 +98,7 @@
                         {id:4, name:"deleted", description:"Deleted", include:false, age:null},
                      ];
         for(var i=0; i<states.length; i++) {
-            var str = `{id:${states[i].id}, name:"${states[i].name}", display:"${states[i].display}", include:${states[i].include}, age:${states[i].age}}`;
+            var str = `{id:${states[i].id}, name:"${states[i].name}", description:"${states[i].description}", include:${states[i].include}, age:${states[i].age}}`;
             %> stateMapping.push(<%- str %>);
             <% } %>
         stateMapping.forEach( function(column) { 
@@ -151,8 +151,6 @@
             div.setAttribute("id", "column-" + column.name);
             div.setAttribute("class", "column");
             div.setAttribute("draggable", "true");
-            div.state_id = column.id;
-            div.state_name = column.name;
             var header = div.appendChild(document.createElement("header"));
             var p = header.appendChild(document.createElement("p"));
             p.appendChild(document.createTextNode(column.description));
