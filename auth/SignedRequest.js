@@ -4,7 +4,7 @@ function SignedRequest() {
 };
 
 
-SignedRequest.prototype.FbVerify = function(secret, req) {
+SignedRequest.prototype.FbVerify = function(config, req) {
     var kauth = req.cookies.kauth;
     var signedRequest = req.body.signedRequest; 
 
@@ -27,7 +27,7 @@ SignedRequest.prototype.FbVerify = function(secret, req) {
     var algorithm = data.algorithm; 
 
     var ret = {
-        status: verify(algorithm, signedRequest, encodedSignature, secret, encoded),
+        status: verify(algorithm, signedRequest, encodedSignature, config.secret, encoded),
         user_id: data.user_id,
         data: signedRequest
     };

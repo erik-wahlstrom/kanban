@@ -8,8 +8,26 @@ var routes = require('./routes/index');
 var SignedRequest = require('./auth/SignedRequest');
 
 
-var fbAppSecret = "2d698b20184a3f7f0e760baec66c4aff";
+var testConfig = {
+    appId: "1817968725151384",
+    secret: "7142f66c6459e268c013ed6fdb477ebb"
+}
+var prodConfig = {
+    appId: "1817608658520724",
+    secret: "2d698b20184a3f7f0e760baec66c4aff"
+}
+var config = {
+    dev: testConfig,
+    prod: prodConfig
+}
+
+var configName = "prod";
+var activeConfig = config[configName];
+
+console.log("Active Config: " + JSON.stringify(activeConfig));
+
 var authCookieMaxAge = 900000;
+
 
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +41,7 @@ app.use(cookieParser());
 app.get('/reset', function(req, res, next) {
    res.clearCookie('kauth');
    res.clearCookie('user_id');
-   res.render('login.ejs', {states: ''});
+   res.render('login.ejs', {config: activeConfig});
    res.end();
    return;
 });
@@ -32,10 +50,10 @@ app.get('/reset', function(req, res, next) {
     anyone can hit the login page
 */
 app.get('/login.ejs', function(req, res, next) { 
-   console.log("login.ejs");      
-   res.render('login.ejs', {states: ''});
-   res.end();
-   return;
+    console.log("login.ejs");      
+   res.render('login.ejs', {config: activeConfig});
+    res.end();
+    return;
 });
 /*
     used by Auth & REST
@@ -47,7 +65,7 @@ app.use(bodyParser.json());
 */
 app.post('/auth', function(req, res, next) { 
    var v = new SignedRequest();
-   var auth = v.FbVerify(fbAppSecret, req);
+   var auth = v.FbVerify(activeConfig, req);
    
    if (auth.status == true) {
        res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
@@ -67,13 +85,13 @@ app.use(function(req, res, next) {
     //If there is no cookie, log them in.
     var sr = req.cookies.kauth;
     if (!sr) {
-        res.render('login.ejs', {states: ''});
+        res.render('login.ejs', {config: activeConfig});
         res.end();
         return;
     }
 
     var v = new SignedRequest();
-    var auth = v.FbVerify(fbAppSecret, req);
+    var auth = v.FbVerify(activeConfig, req);
     if (!auth.status) {
         res.clearCookie('kauth');
         res.clearCookie('user_id');
@@ -96,7 +114,7 @@ app.use('/manage', routes);
     When all else failes, try to login
 */
 app.use( function(req, res, next) {
-    res.render('login.ejs', {req: req, res: res, states: ''});
+   res.render('login.ejs', {config: "activeConfig"});
 });
 
 
