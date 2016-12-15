@@ -21,8 +21,9 @@ var config = {
     prod: prodConfig
 }
 
-var configName = "prod";
-var activeConfig = config[configName];
+var CONFIG_NAME = "dev";
+var PORT = 3000;
+var activeConfig = config[CONFIG_NAME];
 
 console.log("Active Config: " + JSON.stringify(activeConfig));
 
@@ -43,17 +44,13 @@ app.get('/reset', function(req, res, next) {
    res.clearCookie('user_id');
    res.render('login.ejs', {config: activeConfig});
    res.end();
-   return;
 });
 
 /*
     anyone can hit the login page
 */
 app.get('/login.ejs', function(req, res, next) { 
-    console.log("login.ejs");      
-   res.render('login.ejs', {config: activeConfig});
-    res.end();
-    return;
+    res.render('login.ejs', {config: activeConfig});
 });
 /*
     used by Auth & REST
@@ -70,7 +67,10 @@ app.post('/auth', function(req, res, next) {
    if (auth.status == true) {
        res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
        res.cookie('user_id', auth.user_id, { maxAge: authCookieMaxAge, httpOnly: true });
+       res.status = 200;
+       res.s
    } else {
+       res.status = 401;
        res.clearCookie('kauth');
        res.clearCookie('user_id');
    }
@@ -87,21 +87,21 @@ app.use(function(req, res, next) {
     if (!sr) {
         res.render('login.ejs', {config: activeConfig});
         res.end();
-        return;
+    } else { // if there is a cookie, try to validate it.
+        var v = new SignedRequest();
+        var auth = v.FbVerify(activeConfig, req);
+        if (!auth.status) {
+            res.clearCookie('kauth');
+            res.clearCookie('user_id');
+            var err = new Error('Unauthorized');
+            err.status = 401;
+            return;
+        } else {
+            res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
+            res.cookie('user_id', auth.user_id, { maxAge: authCookieMaxAge, httpOnly: true });
+            next();
+        }
     }
-
-    var v = new SignedRequest();
-    var auth = v.FbVerify(activeConfig, req);
-    if (!auth.status) {
-        res.clearCookie('kauth');
-        res.clearCookie('user_id');
-        var err = new Error('Unauthorized');
-        err.status = 401;
-        return;
-    } 
-    res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
-    res.cookie('user_id', auth.user_id, { maxAge: authCookieMaxAge, httpOnly: true });
-    next();
 });
 
 
@@ -114,12 +114,12 @@ app.use('/manage', routes);
     When all else failes, try to login
 */
 app.use( function(req, res, next) {
-   res.render('login.ejs', {config: "activeConfig"});
+   res.render('login.ejs', {config: activeConfig});
 });
 
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
+app.listen(PORT, function () {
+  console.log('Example app listening on port ' + PORT);
 })
 
 

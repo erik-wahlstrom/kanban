@@ -2,17 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Kanban!</title>
-    <link rel="stylesheet" href="./public/stylesheets/style.css">
-    <link rel="stylesheet" href="./public/stylesheets/Modal.css">
+    <title>Kanban Manager</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./public/stylesheets/manage.css" />
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <script src="./public/scripts/tabbedcontent.min.js"></script>
     <script src="./public/scripts/WorkItemProxy.js"></script>
     <script src="./public/scripts/util.js"></script>
     <script type="text/javascript">
     //<![CDATA[
+
+    var tabs;
+    jQuery(function($) {
+        tabs = $('.tabscontent').tabbedContent({loop: true}).data('api');
+
+        // Next and prev actions
+        $('.controls a').on('click', function(e) {
+            var action = $(this).attr('href').replace('#', '');
+            tabs[action]();
+            e.preventDefault();
+        });
+    });
 
     function FindRecordById() {
         var wi = new WorkItem();
@@ -124,50 +138,33 @@
   </script>
 </head>
 <body >
-    <div id='div-main' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
-
-        <div id='div-work_item' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
-            <form style="display: table;">
-                <p style="display: table-row">
-                    <label class="input-label">Id:</label>
-                    <input  id="txt-id" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">Person Id:</label>
-                    <input  id="txt-person_id" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">Work Item Group Id:</label>
-                    <input  id="txt-work_item_group_id" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">State Id:</label>
-                    <input  id="txt-state_id" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">Description:</label>
-                    <input  id="txt-description" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">Created Date:</label>
-                    <input  id="txt-created_date" type="text" class="input-field" /></p>
-                <p style="display: table-row">
-                    <label class="input-label">Last update Date:</label>
-                    <input  id="txt-last_update" type="text" class="input-field" /></p>
-            </form>
-        </div>
-        <div id='div-controls' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
-            <form style="display: table;">
-                <table>
-                    <tbody>
-                        <tr><td><input type="button" value="Create new record" onclick="javascript:CreateRecord();"/></td></tr>
-                        <tr><td><input type="button" value="Find a record by Id" onclick="javascript:FindRecordById();"/></td></tr>
-                        <tr><td><input type="button" value="Update a record" onclick="javascript:UpdateRecords();"/></td></tr>
-                        <tr><td><input type="button" value="Delete a record" onclick="javascript:DeleteRecord();"/></td></tr>
-                        <tr><td><input type="button" value="Find by StateId" onclick="javascript:FindByStateId();"/></td></tr>
-                        <tr><td><input type="button" value="Show All Rows" onclick="javascript:FindAllRecords();"/></td></tr>
-                    </tbody>
-                </table>
-            </form>
+    <div class="wrapper">
+        <ul>
+            <li><a href="#tab-1">Work Items</a></li>
+            <li><a href="#tab-2">People</a></li>
+            <li><a href="#tab-3">Groups</a></li>
+            <li class="controls">
+                <ul>
+                    <li><a href="#prev">&lsaquo; Prev</a></li>
+                    <li><a href="#next">Next &rsaquo;</a></li>
+                </ul>
+            </li>
+        </ul>
+        <div class="tabscontent">
+            <div id="tab-1">
+                <% include manage/tab-1.ejs %>
+            </div>
+            <div id="tab-2" class="lorem">
+            </div>
+            <div id="tab-3" class="lorem">
+            </div>
         </div>
     </div>
-    <div id='div-results' class='radiused outlined' style='word-wrap: break-word; word-break: break-all;'>
-        <table class="table">
+
+
+
+    <div id='div-results' >
+        <table class="table" style="float:right; border:1px solid #0f0">
             <thead>
                 <tr>
                     <th>Id</th>

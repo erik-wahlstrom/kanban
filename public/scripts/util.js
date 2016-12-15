@@ -42,10 +42,16 @@ function FormatDate(zdate) {
     return monthNames[monthIndex] + ' ' + day + ', ' + year;
 }
 
-function FindParent(node, parentName) {
+function FindParent(node, parentName, idPrefix) {
     var parent = node;
     while (parent != null) {
         if (parent.nodeName.toLowerCase() == parentName.toLowerCase()) {
+            if (idPrefix != null) {
+                var id = parent.getAttribute("id");
+                if (!id.startsWith(idPrefix)) {
+                    continue;
+                }
+            } 
             return parent;
         }
         parent =parent.parentNode;

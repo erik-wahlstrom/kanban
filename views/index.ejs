@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Kanban!</title>
-    <link rel="stylesheet" href="./public/stylesheets/dnd.css">
-    <link rel="stylesheet" href="./public/stylesheets/sticky.css">
-    <link rel="stylesheet" href="./public/stylesheets/Modal.css">
+    <link rel="stylesheet" href="./public/stylesheets/style.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-    <script src="./public/scripts/test.js"></script>
     <script src="./public/scripts/util.js"></script>
     <script src="./public/scripts/WorkItemProxy.js"></script>
     <script src="./public/scripts/Table.js"></script>
@@ -94,14 +91,14 @@
         var stateMapping = [];
         <%         
 
-        var states = [  {id:0, name:"error", description:"Error", include:false, age:null}, 
-                        {id:1, name:"not-started", description:"Not started", include:true, age:null},
-                        {id:2, name:"active", description:"Active", include:true, age:null},
-                        {id:3, name:"complete", description:"Complete", include:true, age:2},
-                        {id:4, name:"deleted", description:"Deleted", include:false, age:null},
+        var states = [  {idx:0, name:"error", description:"Error", include:false, age:null}, 
+                        {idx:1, name:"not-started", description:"Not started", include:true, age:null},
+                        {idx:2, name:"active", description:"Active", include:true, age:null},
+                        {idx:3, name:"complete", description:"Complete", include:true, age:2},
+                        {idx:4, name:"deleted", description:"Deleted", include:false, age:null},
                      ];
         for(var i=0; i<states.length; i++) {
-            var str = `{id:${states[i].id}, name:"${states[i].name}", description:"${states[i].description}", include:${states[i].include}, age:${states[i].age}}`;
+            var str = `{idx:${states[i].idx}, name:"column-${states[i].name}", description:"${states[i].description}", include:${states[i].include}, age:${states[i].age}}`;
             %> stateMapping.push(<%- str %>);
             <% } %>
             stateMapping.forEach( function(column) { 
@@ -120,7 +117,7 @@
             wi2.error = function(response) {
                 HandleError("Could not retreive record(s)", response);
             }
-                wi2.success = function(response) {
+            wi2.success = function(response) {
                 AppendTask( stateMapping[response.data.state_id], response.data);
                 closeModal();
             }
@@ -151,7 +148,7 @@
         if (column.include) {
             var parent = document.getElementById(parentId);
             var div = parent.appendChild(document.createElement("div"));
-            div.setAttribute("id", "column-" + column.name);
+            div.setAttribute("id", column.name);
             div.setAttribute("class", "column");
             div.setAttribute("draggable", "true");
             var header = div.appendChild(document.createElement("header"));
@@ -159,6 +156,15 @@
             p.appendChild(document.createTextNode(column.description));
             var ul = div.appendChild(document.createElement("ul"));
         }
+    }
+
+    function FindColumn(divId) {
+        for (i=0;i<stateMapping.length;i++) {
+            if (stateMapping[i].name == divId) {
+                return stateMapping[i];
+            }
+        }
+        return null;    
     }
         
 
@@ -169,9 +175,12 @@
     }
     function columnDrop(e) { 
         var task = JSON.parse(e.dataTransfer.getData("json"));
-        var columnId = e.id;
-        console.log("Dropping: " + task.description);
-        UpdateState(task, e.target.state_id, e.target.state_name);
+        var parent = e.currentTarget;
+        // e could be a lot of things, and so walk up until you get the column.
+        parent = FindParent(parent, "div", "column");
+        var columnName = parent.id;
+        var column = FindColumn(columnName);
+        UpdateState(task, column);
     }
 
 
@@ -216,7 +225,7 @@ function LookupUser() {
 //      </a>
 //    </li>
 function AppendTask(column, task) {
-    var div = document.getElementById("column-" + column.name);
+    var div = document.getElementById(column.name);
     var ul = div.childNodes[1];
 
     var li = ul.appendChild(document.createElement("li"));
@@ -359,7 +368,7 @@ function ShowUpdateUi(e) {
     function InitTasks(arrTasks) {
         arrTasks.forEach( function(task){ 
             var column = stateMapping[task.state_id];
-            var div = document.getElementById("column-" + column.name);
+            var div = document.getElementById(column.name);
             if (div) {
                 AppendTask(column, task);
             }
@@ -367,13 +376,12 @@ function ShowUpdateUi(e) {
     }
 
 
-    function UpdateState(task, newState, stateName) {
+    function UpdateState(task, column) {
         //Start doing the DB Update to the new state
         var wi = new WorkItem();
         wi.id = task.id;
-        wi.state_id = newState;
+        wi.state_id = column.idx;
         wi.description = task.description;        
-        task.state_id = newState;
 
 
         wi.error = function(response) {
@@ -382,10 +390,11 @@ function ShowUpdateUi(e) {
         wi.success = function(response) {
             //If this was sucessful then 
             //Delete the old one.
+            task.state_id = wi.state_id;
             var div = document.getElementById("task-" + task.id);
             ClearTask(div);
             //Create the new Item
-            AppendTask(stateMapping[newState], task );
+            AppendTask(column, task );
         }
         wi.UpdateWorkItem();
     }
