@@ -21,7 +21,7 @@ var config = {
     prod: prodConfig
 }
 
-var CONFIG_NAME = "dev";
+var CONFIG_NAME = "prod";
 var PORT = 3000;
 var activeConfig = config[CONFIG_NAME];
 
