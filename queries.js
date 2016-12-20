@@ -273,12 +273,17 @@ function updateWorkItem(req, res, next) {
     var wi = {
         id: parseInt(req.params.id),
         state_id: parseInt(req.body.state_id),
+        work_item_group_id: parseInt(req.body.work_item_group_id),
+        person_id: parseInt(req.body.person_id),
         description: req.body.description,
+        due_date: new Date(req.body.due_date),
         last_update: new Date()
     };
-
-    console.log(wi);
-    db.none('UPDATE work_item SET state_id=${state_id}, description=${description}, last_update=${last_update} WHERE id=${id}', wi)
+    var sql = 'UPDATE work_item SET state_id=${state_id}, work_item_group_id=${work_item_group_id}, '
+        + 'person_id= ${person_id}, due_date=${due_date}, description=${description}, last_update=${last_update} WHERE id=${id}'
+    console.log(sql);
+    console.log(JSON.stringify(wi));
+    db.none(sql, wi)
         .then(function () {
           res.status(200)
             .json({

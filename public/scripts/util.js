@@ -80,3 +80,54 @@ function OpenNewTab(url) {
   var win = window.open(url, '_blank');
   win.focus();
 }
+
+
+/************************
+ * UX Controls
+ ************************/
+
+function ToggleClass(e, add, remove) {
+    if (e) {
+        if (e.classList.contains(add)) e.classList.remove(add);
+        if (e.classList.contains(remove)) e.classList.remove(remove);
+        e.classList.add(add);
+    }
+}
+function HideDiv(id)
+{
+    var e = document.getElementById(id); 
+    if (e) {
+        e.style.display = 'none';
+    }
+}
+function ShowDivAsBlock(id)
+{
+    var e = document.getElementById(id); 
+    if (e) {
+        e.style.display = 'block';
+    }
+}
+function ShowDivAsInlineBlock(id)
+{
+    var e = document.getElementById(id); 
+    if (e) {
+        e.style.display = 'inline-block';
+    }
+}
+
+function LoadSelect(id, table, id_col, value_col, orderby, desc, selIdx) {
+    var t = new Table();
+    t.success = function(response) {
+        var sel = document.getElementById(id);
+        response.data.forEach( function(row) {
+            var opt = sel.appendChild(document.createElement("option"));
+            opt.setAttribute("value", row[id_col]);
+            opt.appendChild(document.createTextNode(row[value_col]));
+        });
+        sel.selectedIndex = selIdx;
+    };
+    t.error = function(response) {
+        HandleError("Couldn't load " + table);
+    };
+    t.SelectStar(table, orderby, desc);
+}

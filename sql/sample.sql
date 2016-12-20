@@ -9,5 +9,5 @@ insert into person (name, fb_id, admin) values ('Colleen Wahlstrom', 'UNKOWN', f
 
 insert into work_item (state_id, work_item_group_id, person_id, description, created_date, last_update) values (1, 1, 1, 'Dummy item', now(), now());
 
-INSERT INTO note (work_item_id, value, created_date) VALUES (1, 2, 'This is a note.', now());
+INSERT INTO note (work_item_id, person_id, value, created_date) VALUES (1, 2, 'This is a note.', now());
 

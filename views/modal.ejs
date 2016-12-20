@@ -1,0 +1,59 @@
+    <div id="modal-task" class="modal" >
+        <div class="modal-content"  >
+            <div  style="float:right;">
+                <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
+            </div>  
+            <div  style="float:left;">
+                <table class="task_update">
+                    <tr id='modal-task_id'><td><label class="input-label">Id:</label></td>
+                        <td><input  id="txt-task_id" type="text" class="input-field" readonly="readonly" colpan="2"/></td></tr>
+                    <tr id='modal-state_id'><td><label class="input-label">Id:</label></td>
+                        <td><input  id="txt-state_id" type="text" class="input-field" readonly="readonly" colpan="2"/></td></tr>
+
+                    <tr id='modal-owner_id' ><td><label class="input-label">Owner:</label></td>
+                        <td colpan="2">
+                            <select id="sel-owner_id"></select>
+                        </td>
+                    </tr>
+                    <tr id='modal-work_item_group_id' ><td><label class="input-label">Group:</label></td>
+                        <td colpan="2">
+                            <select id="sel-work_item_group_id"></select>
+                        </td>
+                    </tr>
+                    <tr id='modal-created_date'><td><label class="input-label">Created Date:</label></td>
+                        <td colpan="2"><input  id="txt-created_date" type="text" class="input-field" colpan="2"/></td></tr>
+                    <tr id='modal-due_date'><td><label class="input-label" >Due Date:</label></td>
+                        <td colpan="2"><input  id="txt-due_date" type="text" class="input-field"/></td></tr>
+                    <tr id='modal-last_update'><td><label class="input-label" >Last Update:</label></td>
+                        <td colpan="2"><input  id="txt-last_update" type="text" class="input-field"/></td></tr>
+                    <tr id='modal-description' ><td><label class="input-label">Description:</label></td>
+                        <td colpan="2"><input  id="txt-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
+                    <tr id='modal-note' ><td><label class="input-label">Note:</label></td>
+                        <td><input  id="txt-note" type="text" class="input-field" style="width: 500px; height:50px;"/></td>
+                        <td><input  id="btn-create" type="button" value="Add" style="float:right" onclick="CreateNote()"/></td></tr>
+                        </tr>
+                    <tr id='modal-create'>
+                            <td></td>
+                            <td></td>
+                            <td><input  id="btn-create" type="button" value="Create" style="float:right" onclick="CreateTask();"/></td>
+                    </tr>
+                    <tr id='modal-update'>
+                            <td></td>
+                            <td></td>
+                            <td><input  id="btn-update" type="button" value="Update" style="float:right" onclick="UpdateTaskUi();"/></td>
+                    </tr>
+                </table>
+                <table style="border:1pt solid black" id="notes-table">
+                        <thead>
+                            <tr style="border:1pt solid black">
+                                <td style="border:1pt solid black" >Name</td>
+                                <td style="border:1pt solid black" >Date</td>
+                                <td style="border:1pt solid black">Note</td>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-notes">
+                        </tbody>
+                </table>   
+            </div>
+        </div>
+    </div>

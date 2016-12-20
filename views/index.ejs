@@ -8,403 +8,150 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-    <script src="./public/scripts/util.js"></script>
-    <script src="./public/scripts/WorkItemProxy.js"></script>
+    <script src="./public/scripts/Util.js"></script>
+    <script src="./public/scripts/WorkItem.js"></script>
     <script src="./public/scripts/Table.js"></script>
-
+    <script src="./public/scripts/Person.js"></script>
+    <script src="./public/scripts/Task.js"></script>
+    <script src="./public/scripts/Note.js"></script>
+    <script src="./public/scripts/UX.js"></script>
+    
 </head>
 <body >
-    <div id="modal-add-task" class="modal" >
-        <div class="modal-content"  >
-            <div  style="float:left;">
-                <table>
-                    <tr><td><label class="input-label">Owner:</label></td>
-                        <td>
-                            <select id="sel-owner_id"></select>
-                        </td>
-                    </tr>
-                    <tr><td><label class="input-label">Group:</label></td>
-                        <td>
-                            <select id="sel-work_item_group_id"></select>
-                        </td>
-                    </tr>
-                    <tr><td><label class="input-label">Due Date:</label></td>
-                        <td><input  id="txt-due_date" type="text" class="input-field"/></td></tr>
-                    <tr><td><label class="input-label">Description:</label></td>
-                        <td><input  id="txt-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
-                    <tr><td></td>
-                        <td><input  id="btn-create" type="button" value="Submit" style="float:right" onclick="CreateTask();"/></td></tr>
-                </table>
-            </div>
-            <div  style="float:right;">
-                <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
-            </div>  
+    <%- include('modal.ejs'); %>
+    <div class="container" >
+        <div class="main_header" >
+            <header><h2>The Kanban Board!<h2></header>
+            <table style="color:#000;">
+                <tr><td><strong>Owner:</strong>&nbsp;</td><td><input id="person_name" type="text" disabled="disabled"/></td></tr>
+                <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
+                <tr><td><strong>Add a new task</strong>&nbsp;</td><td>
+                    <input id="btn-add-task" type="button" value="Add" ></input>
+                    </td></tr>
+                <tr><td><strong>Failsafe:</strong>&nbsp;</td><td><input  id="chk-failsafe" type="checkbox" value="Submit"  checked="checked"/></td></tr>
+            </table>
         </div>
-    </div>
-    <div id="modal-update-task" class="modal" >
-        <div class="modal-content"  >
-            <div  style="float:left;">
-                <table>
-                    <tr><td><label class="input-label">Id:</label></td>
-                        <td><input  id="txt-update-id" type="text" class="input-field" readonly="readonly"/></td></tr>
-                    <tr><td><label class="input-label">Owner:</label></td>
-                        <td>
-                            <select id="sel-update-owner_id"></select>
-                        </td>
-                    </tr>
-                    <tr><td><label class="input-label">Group:</label></td>
-                        <td>
-                            <select id="sel-update-work_item_group_id"></select>
-                        </td>
-                    </tr>
-                    <tr><td><label class="input-label">Due Date:</label></td>
-                        <td><input  id="txt-update-due_date" type="text" class="input-field"/></td></tr>
-                    <tr><td><label class="input-label">Description:</label></td>
-                        <td><input  id="txt-update-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
-                    <tr><td></td>
-                        <td><input  id="btn-update" type="button" value="Submit" style="float:right" onclick="UpdateTheTask();"/></td></tr>
-                    <tr><td>
-                    <tr><td><label class="input-label">Note:</label></td>
-                        <td><input  id="txt-update-note" type="text" class="input-field" style="width: 500px; height:50px;"/></td></tr>
-                    <tr><td></td>
-                        <td><input  id="btn-update" type="button" value="Submit" style="float:right" onclick="UpdateNote();"/></td></tr>
-                    <tr><td>
-                </table>
-                <table style="border:1pt solid black">
-                        <thead>
-                            <tr style="border:1pt solid black">
-                                <td style="border:1pt solid black" >Name</td>
-                                <td style="border:1pt solid black" >Date</td>
-                                <td style="border:1pt solid black">Note</td>
-                            </tr>
-                        </thead>
-                        <tbody id="tbl-notes">
-                        </tbody>
-                </table>   
-            </div>
-            <div  style="float:right;">
-                <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
-            </div>  
+        <div id="columns" class="column_container">
+            <div id="column-not-started" class="column" draggable="true"></div>
+            <div class="spacer"></div>
+            <div id="column-active" class="column" draggable="true"></div>
+            <div class="spacer"></div>
+            <div id="column-complete" class="column" draggable="true"></div>
         </div>
     </div>
 
-    <div class="main_header" >
-        <header><h2>The Kanban Board!<h2></header>
-        <table style="color:#000;">
-            <tr><td><strong>Owner:</strong>&nbsp;</td><td><input id="person_name" type="text" disabled="disabled"/></td></tr>
-            <tr><td><strong>Group:</strong>&nbsp;</td><td><select id="sel-current_work_item_group_id"></td></tr>
-            <tr><td><strong>Add a new task</strong>&nbsp;</td><td>
-                <input id="btn-add-task" type="button" value="Add" ></input>
-                </td></tr>
-            <tr><td><strong>Failsafe:</strong>&nbsp;</td><td><input  id="chk-failsafe" type="checkbox" value="Submit"  checked="checked"/></td></tr>
-        </table>
-    </div>
-    <div id="columns" class="column_container">
-    </div>
     <script type="text/javascript">
     //<![CDATA[
-
-    var fbId = "<%= req.cookies.user_id %>";
+        var fbId = "<%= req.cookies.user_id %>";
         var stateMapping = [];
-        <%         
+        var stateMapping = [{}, //This is here so that foo.idx = stateMapping[idx]; 
+            {idx:1, id:"column-not-started",  description:"Not started", include:true, age:null}, 
+            {idx:2, id:"column-active",       description:"Active", include:true, age:null}, 
+            {idx:3, id:"column-complete",     description:"Complete", include:true, age:2}
+        ];
+        CreateColumn(stateMapping[1]);
+        CreateColumn(stateMapping[2]);
+        CreateColumn(stateMapping[3]);
 
-        var states = [  {idx:0, name:"error", description:"Error", include:false, age:null}, 
-                        {idx:1, name:"not-started", description:"Not started", include:true, age:null},
-                        {idx:2, name:"active", description:"Active", include:true, age:null},
-                        {idx:3, name:"complete", description:"Complete", include:true, age:2},
-                        {idx:4, name:"deleted", description:"Deleted", include:false, age:null},
-                     ];
-        for(var i=0; i<states.length; i++) {
-            var str = `{idx:${states[i].idx}, name:"column-${states[i].name}", description:"${states[i].description}", include:${states[i].include}, age:${states[i].age}}`;
-            %> stateMapping.push(<%- str %>);
-            <% } %>
-            stateMapping.forEach( function(column) { 
-            CreateColumn('columns', column); 
-        });
-
-    function UpdateNote() {
-        alert('Create a note');
-    }
-        
-    function CreateTask() {
-        var wi = new WorkItem();
-        wi.error = function(response) {
-            HandleError("Could not create record(s)", response);
+        function CloseModals() {
+            HideDiv('modal-task');
         }
-        wi.success = function(response) {
-            //Add sticky
-            var wi2 = new WorkItem();
-            wi2.id = response.data.id;
-            wi2.error = function(response) {
-                HandleError("Could not retreive record(s)", response);
-            }
-            wi2.success = function(response) {
-                AppendTask( stateMapping[response.data.state_id], response.data);
-                closeModal();
-            }
-            wi2.FindWorkItem();
-        }
-        wi.description = GetValueById('txt-description');
-        wi.person_id = parseInt(GetValueById('sel-owner_id'));
-        wi.work_item_group_id = parseInt(GetValueById('sel-work_item_group_id'));
-        
-        var strDate = GetValueById('txt-due_date');
-        var due_date = null;
-        try { 
-            due_date = new Date(strDate);
-        } catch (e) {
-            due_date = null;
-        } 
-        wi.due_date = due_date;
-        wi.CreateWorkItem();
-    }
 
-    function closeModal() {
-        var modal = document.getElementById('modal-add-task');
-        modal.style.display = "none";
-    }
 
-    //<div id="column-not-started" class="column" ><header>Not Started</header></div>
-    function CreateColumn(parentId, column) {
-        if (column.include) {
-            var parent = document.getElementById(parentId);
-            var div = parent.appendChild(document.createElement("div"));
-            div.setAttribute("id", column.name);
-            div.setAttribute("class", "column");
-            div.setAttribute("draggable", "true");
+        /****************************************************************************/
+        /****************************************************************************/
+        /*********                          COLUMNS                        **********/
+        /****************************************************************************/
+        /****************************************************************************/
+        //<div id="column-not-started" class="column" ><header>Not Started</header></div>
+        function CreateColumn( column) {
+            var div = document.getElementById(column.id);
             var header = div.appendChild(document.createElement("header"));
             var p = header.appendChild(document.createElement("p"));
             p.appendChild(document.createTextNode(column.description));
             var ul = div.appendChild(document.createElement("ul"));
         }
-    }
 
-    function FindColumn(divId) {
-        for (i=0;i<stateMapping.length;i++) {
-            if (stateMapping[i].name == divId) {
-                return stateMapping[i];
-            }
-        }
-        return null;    
-    }
-        
-
-    function columnDragOver(e) { 
-        if (e.preventDefault) {
-            e.preventDefault(); // Necessary. Allows us to drop.
-        }
-    }
-    function columnDrop(e) { 
-        var task = JSON.parse(e.dataTransfer.getData("json"));
-        var parent = e.currentTarget;
-        // e could be a lot of things, and so walk up until you get the column.
-        parent = FindParent(parent, "div", "column");
-        var columnName = parent.id;
-        var column = FindColumn(columnName);
-        UpdateState(task, column);
-    }
-
-
-    var columns = document.querySelectorAll(".column");
-    [].forEach.call(columns, function(column) {
-        column.addEventListener('dragover', columnDragOver, false);
-        column.addEventListener('drop', columnDrop, false);
-    });
-
-    function taskDragStart(e) { 
-        // Target (this) element is the source node.
-        this.style.opacity = '0.4';
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
-    }
-    function taskDrag(e) { 
-        // Target (this) element is the source node.
-        this.style.opacity = '1.0';
-    }
-
-
-    function LookupUser() {
-        var t = new Table();
-        t.success = function(response) {
-            SetValueById("person_name", response.data.name);
-        };
-        t.error = function(response) {
-            HandleError("Couldn't load person");
-        };
-        t.FindOne('person', 'fb_id', fbId);    
-    }
-
-    function ListNotes(wid) {
-        var tbl = document.getElementById("tbl-notes");
-        var wi = new WorkItem();
-        wi.id = wid;
-
-        wi.error = function(response) {
-            HandleError("Could not retreive record(s)", response);
-        }
-        wi.success = function(response) {
-            response.data.forEach( function(note) {
-                var tr = tbl.appendChild(document.createElement("tr"));
-                
-                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.name));
-                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.created_date));
-                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.value));
-            });
-        }
-        wi.FindNotes();
-    }
-
-
-/***************************************************************/
-/***************************************************************/
-/** General UI **/
-/***************************************************************/
-/***************************************************************/
-//    <li>
-//      <a href="#">
-//        <h2>Title #1</h2>
-//        <p>Text Content #1</p>
-//      </a>
-//    </li>
-function AppendTask(column, task) {
-    var div = document.getElementById(column.name);
-    var ul = div.childNodes[1];
-
-    var li = ul.appendChild(document.createElement("li"));
-    li.setAttribute("id","task-" + task.id);
-    li.setAttribute("draggable", "true");
-    li.task_id = task.id;
-    var a = li.appendChild(document.createElement("a"));
-    a.task = task;
-    a.setAttribute("href", "#");
-
-    var h2 = a.appendChild(document.createElement("h2"));
-    h2.appendChild(document.createTextNode("Id: " + task.id));
-    var span = a.appendChild(document.createElement("span"));
-    span.setAttribute("class", "close_x");
-    span.appendChild(document.createTextNode("X"));
-    span.onclick= RemoveTask
-
-    span = a.appendChild(document.createElement("span"));
-    span.setAttribute("class", "close_x");
-    span.appendChild(document.createTextNode("?"));
-    span.onclick= ShowUpdateUi;
-
-
-    var person_name = task.person_name ? task.person_name : null;
-    var description = task.description ? task.description : null;
-    var created_date = task.created_date ? FormatDate(task.created_date) : null;
-    var due_date = task.due_date ? FormatDate(task.due_date) : null;
-
-    var color = null;
-    if (task.due_date)
-    {
-        var due = new Date(due_date);
-        if (IsTodayOrInPast(due)) color = "red";  
-    } 
-
-    var fields = [ 
-        ['Owner', person_name, 50, color, false]
-        , ['Due', due_date, 50, color, false] 
-        , ['Created', created_date, 50, color, false] 
-        , ['Description', description, 200, color, true]
-        ];
-    
-    //TODO make this work better
-    if (!description) {
-        a.setAttribute("style","display:block;height:6em;");
-        a.style.height='6em';
-    } else if (description.length > 50) {
-        a.setAttribute("style","display:block;height:15em;");
-        a.style.height='15em';
-    }
-    var p = a.appendChild(document.createElement("p"));
-
-    p.setAttribute("style", "white-space: pre-wrap;");
-    var id = "sticky-" + task.id;
-    p.setAttribute("id", "sticky-" + task.id);
-
-        var innerHtml = "";
-        fields.forEach( function(field) {
-            if (field[1]) {
-                var label = `<strong>${field[0]}:&nbsp;</strong>`;
-                var text = field[1];
-
-                //URLifly
-                if (field[4]) {
-                    text = Urlify(text, "#0000ff");
+        function FindColumn(divId) {
+            for (i=0;i<stateMapping.length;i++) {
+                if (stateMapping[i].id == divId) {
+                    return stateMapping[i];
                 }
-                var text = `<span style='${field[3]}' >` + text + "</span>";
-                var html = document.getElementById(id);
-                innerHtml += label + text + "<br/>";
+            }
+            return null;    
+        }
+        function columnDragOver(e) { 
+            if (e.preventDefault) {
+                e.preventDefault(); // Necessary. Allows us to drop.
+            }
+        }
+        function columnDrop(e) { 
+            var task = JSON.parse(e.dataTransfer.getData("json"));
+            var parent = e.currentTarget;
+            // e could be a lot of things, and so walk up until you get the column.
+            parent = FindParent(parent, "div", "column");
+            if (parent.id) {
+                var column = FindColumn(parent.id);
+                UpdateState(task, column);
+            }
+        }
+
+        function taskDragStart(e) { 
+            // Target (this) element is the source node.
+            this.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('json', JSON.stringify(e.srcElement.task));
+        }
+        function taskDrag(e) { 
+            // Target (this) element is the source node.
+            this.style.opacity = '1.0';
+        }
+
+
+    /***************************************************************/
+    /***************************************************************/
+
+    function ShowModal(config) {
+        CloseModals();
+
+        config.fields.forEach(function(field) {
+            var e = document.getElementById(field.id);
+            if (e) {
+                e.style.display = field.display;
+                if (field.readOnly && field.inputId) {
+                    var input = document.getElementById(field.inputId);
+                    input.readOnly = field.readOnly;               
+                    input.disabled = field.readOnly;               
+                }
             }
         });
-        p.innerHTML = innerHtml;
-        /*
-        var links = document.querySelectorAll(".span-link");
-        [].forEach.call(links, function(link) {
-            link.onclick = function() {window.location = link.attributes['href'].nodeValue;}
-        });
-*/
+        ShowDivAsBlock(config.div_id);
 
-    li.addEventListener('dragstart', taskDragStart, false);
-    li.addEventListener('drag', taskDrag, false);
-    return div;
-}
-
-function RemoveTask(e) {
-    var parent = FindParent(e.srcElement, "li");
-    if (parent) {
-        var task_id = parent.task_id;
-        var chk = document.getElementById('chk-failsafe');
-        if (chk.checked) {
-            if(!(confirm("Delete task '" + task_id + "'?"))) {
-                return;
-             }
-        }
-        var task = {id: task_id, state_id: 4, description: 'Deleted'};
-        DeleteTask(task);
     }
-}
-
-function ShowUpdateUi(e) {
-    var parent = FindParent(e.srcElement, "li");
-    if (parent) {
-        var task_id = parent.task_id;
-        var wi = new WorkItem();
-        wi.id = task_id
-        wi.error = function(response) {
-            HandleError("Could not retreive record(s)", response);
-        }
-        wi.success = function(response) {
-            SetValueById("txt-update-id", response.data.id);
-            SetValueById("txt-update-due_date", response.data.due_date);
-            SetValueById("txt-update-description", response.data.description);
-            ListNotes(response.data.id);
-        }
-        wi.FindWorkItem();
-    }
-
-    ShowModal('update');
-}
-/***************************************************************/
-/***************************************************************/
-/** Tasks **/
-/***************************************************************/
-/***************************************************************/
-    function ClearTasks()
-    {
-        var tasks = document.querySelectorAll("li");
-        [].forEach.call(tasks, function(task) {
-            if (task.task_id) {
-                ClearTask(task);
+    function ShowUpdateUi(e) {
+        var parent = FindParent(e.srcElement, "li");
+        if (parent) {
+            var task_id = parent.task_id;
+            var wi = new WorkItem();
+            wi.id = task_id
+            wi.error = function(response) {
+                HandleError("Could not retreive record(s)", response);
             }
-        });
-    }
+            wi.success = function(response) {
+                SetValueById("txt-task_id", response.data.id);
+                SetValueById("txt-state_id", response.data.state_id);
+                SetValueById("sel-owner_id", response.data.person_id);
+                SetValueById("sel-work_item_group_id", response.data.work_item_group_id);
+                SetValueById("txt-created_date", response.data.created_date);
+                SetValueById("txt-due_date", response.data.due_date);
+                SetValueById("txt-last_update", response.data.last_update);
+                SetValueById("txt-description", response.data.description);
+                ListNotes(response.data.id);
+            }
+            wi.FindWorkItem();
+        }
 
-    function ClearTask(task) {
-        var parent = task.parentNode;
-        parent.removeChild(task);
+        ShowModal(modalConfig.update);
     }
 
     function FindWorkItemsByGroup(work_item_group_id)
@@ -423,95 +170,10 @@ function ShowUpdateUi(e) {
     }
 
 
-    function InitTasks(arrTasks) {
-        arrTasks.forEach( function(task){ 
-            var column = stateMapping[task.state_id];
-            var div = document.getElementById(column.name);
-            if (div) {
-                AppendTask(column, task);
-            }
-        });
-    }
 
 
-    function UpdateState(task, column) {
-        //Start doing the DB Update to the new state
-        var wi = new WorkItem();
-        wi.id = task.id;
-        wi.state_id = column.idx;
-        wi.description = task.description;        
-
-
-        wi.error = function(response) {
-            HandleError("Could not update record: " + wi.id, response);
-        }
-        wi.success = function(response) {
-            //If this was sucessful then 
-            //Delete the old one.
-            task.state_id = wi.state_id;
-            var div = document.getElementById("task-" + task.id);
-            ClearTask(div);
-            //Create the new Item
-            AppendTask(column, task );
-        }
-        wi.UpdateWorkItem();
-    }
-
-
-    function DeleteTask(task) {
-        //Start doing the DB Update to the new state
-        var wi = new WorkItem();
-        wi.id = task.id;
-        wi.state_id = 4;
-        task.state_id = 4;
-
-        wi.error = function(response) {
-            HandleError("Could not delete record: " + wi.id, response);
-        }
-        wi.success = function(response) {
-            //If this was sucessful then 
-            //Delete the old one.
-            var task_div = "task-" + task.id;
-            var div = document.getElementById(task_div);
-            ClearTask(div);
-        }
-        wi.UpdateWorkItem();
-    }
-
-
-    function LoadSelect(id, table, id_col, value_col, orderby, desc, selIdx) {
-        var t = new Table();
-        t.success = function(response) {
-            var sel = document.getElementById(id);
-            response.data.forEach( function(row) {
-                var opt = sel.appendChild(document.createElement("option"));
-                opt.setAttribute("value", row[id_col]);
-                opt.appendChild(document.createTextNode(row[value_col]));
-            });
-            sel.selectedIndex = selIdx;
-        };
-        t.error = function(response) {
-            HandleError("Couldn't load " + table);
-        };
-        t.SelectStar(table, orderby, desc);
-    }
-
-    function ShowModal(name) {
-        var modalAdd = document.getElementById('modal-add-task');
-        var modalUpdate = document.getElementById('modal-update-task');
-
-        modalUpdate.style.display = "none";
-        modalAdd.style.display = "none";
-
-        var modal = document.getElementById('modal-' + name + '-task');
-        modal.style.display = "block";
-
-    }
-
-
+    // window.onload
     window.onload = function() {
-        var modalAdd = document.getElementById('modal-add-task');
-        var modalUpdate = document.getElementById('modal-update-task');
         var span = document.getElementsByClassName('close')[0];
 
         var Xs = document.querySelectorAll(".close");
@@ -519,37 +181,27 @@ function ShowUpdateUi(e) {
         // Get the button that opens the modal
         var btn = document.getElementById('btn-add-task');
         btn.onclick = function() {
-            ShowModal('add');
+            ShowModal(modalConfig.add);
         };
 
         // When the user clicks on <span> (x), close the modal
         [].forEach.call(Xs, function(x) {
             x.onclick = function() {
-                closeModal();
+                CloseModals();
             };
         });
 
         // When the user clicks anywhere outside of the modal, close it
+        var modal= document.getElementById('modal-task');
         window.onclick = function(event) {
-            if (event.target == modalAdd) {
-                closeModal();
+            if (event.target == modal) {
+                CloseModals();
             }
-            if (event.target == modalAdd) {
-                closeModal();
-            }
-        }
-
-        var closeModal = function() {
-            modalUpdate.style.display = "none";
-            modalAdd.style.display = "none";
         }
 
         LoadSelect("sel-owner_id", "person", "id", "name", "name", false, 1);
         LoadSelect("sel-work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
         LoadSelect("sel-current_work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
-        LoadSelect("sel-update-owner_id", "person", "id", "name", "name", false, 1);
-        LoadSelect("sel-update-work_item_group_id", "work_item_group", "id", "description", "description", false, 0);
-
 
         var sel = document.getElementById("sel-current_work_item_group_id");
         sel.onchange = function() {
@@ -567,11 +219,15 @@ function ShowUpdateUi(e) {
             });
 
         } );
-
         LookupUser();
 
-
+        var columns = document.querySelectorAll(".column");
+        [].forEach.call(columns, function(column) {
+            column.addEventListener('dragover', columnDragOver, false);
+            column.addEventListener('drop', columnDrop, false);
+        });
     }
+    // window.onload
 
     //]]>
   </script>
