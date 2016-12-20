@@ -30,7 +30,7 @@ var configs = {
     prod: prodConfig
 }
 var PORT = 3000;
-var ACTIVE_CONFIG = "dev_aws";
+var ACTIVE_CONFIG = "dev";
 
 Configuration.prototype.ActiveConfiguration = function ActiveConfiguration() {
     return configs[ACTIVE_CONFIG];
