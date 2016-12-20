@@ -1,14 +1,16 @@
 var promise = require('bluebird');
+var Configuration = require('./config');
 
 var options = {
   // Initialization Options
-  promiseLib: promise
+  promiseLib: promise,
 };
 
+var config = (new Configuration()).ActiveConfiguration();
 var pgp = require('pg-promise')(options);
-var connectionString = 'postgres://erik:Leadville100@aacxnw4546m2a8.caoeqvnamynp.us-west-2.rds.amazonaws.com:5432/kanban';
 
-var db = pgp(connectionString);
+console.log("Connection: " + JSON.stringify(config.connection_string));
+var db = pgp(config.connection_string);
 
 // add query functions
 
@@ -21,7 +23,8 @@ module.exports = {
   findWorkItemsByStateId: findWorkItemsByStateId,
   findWorkItemsByGroupId: findWorkItemsByGroupId,
   selectStar: selectStar,
-  findOne: findOne
+  findOne: findOne,
+  findNotes: findNotes,
 };
 
 function selectStar(req, res, next) {
@@ -74,6 +77,26 @@ function getAllWorkItems(req, res, next) {
     });
 }
 
+function findNotes(req, res, next) {
+    console.log('findMany');
+    var sql =  'SELECT n.*, p.name as name FROM note n INNER JOIN work_item wi ON n.work_item_id = wi.id INNER JOIN person p on n.person_id = p.id WHERE wi.id = $1';
+
+    console.log("sql : " + sql);
+    db.any(sql, [parseInt(req.params.work_item_id)])
+        .then(function (data) {
+        res.status(200)
+            .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved items.'
+        });
+    })
+    .catch(function (err) {
+        if (handleNoData(err, res)) return;
+        console.log('findMany:error');
+        return next(err);
+    });
+  }
 
 
 function findWorkItemsByStateId(req, res, next) {
@@ -95,6 +118,35 @@ function findWorkItemsByStateId(req, res, next) {
     });
 }
 
+function findMany(req, res, next, data) {
+    console.log('findMany');
+    var sql =  'SELECT * FROM ' + data.table + ' WHERE ';
+
+    var values = [];
+    console.log("data : " + JSON.stringify(data));
+    var c = data.clauses;
+    for (i = 0; i<c.length;i++) {
+        sql += " " + c[i].name + " = " + "$" + (i+1);
+        values.push(c[i].value);  
+    }  
+    console.log("sql : " + sql);
+    console.log("values : " + values);
+    db.any(sql, values)
+        .then(function (data) {
+        res.status(200)
+            .json({
+          status: 'success',
+          data: data,
+          message: 'Retrieved items.'
+        });
+    })
+    .catch(function (err) {
+        if (handleNoData(err, res)) return;
+        console.log('findMany:error');
+        return next(err);
+    });
+}
+
 
 function findOne(req, res, next) {
   console.log('findOne');
@@ -104,7 +156,6 @@ function findOne(req, res, next) {
       column: req.params.column,
       value: req.params.value
   };
-
 
   var sql =  'SELECT * FROM ' + data.table + ' WHERE ' + data.column + ' = ${value}';
   console.log("dta : " + JSON.stringify(data));

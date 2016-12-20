@@ -80,6 +80,19 @@ WorkItem.prototype.DeleteWorkItem = function DeleteWorkItem() {
     this.UpdateWorkItem();
 }
 
+
+WorkItem.prototype.FindNotes = function(){
+    if (!Number.isInteger(parseInt(this.id))) {
+        this.error("id is not a Number");
+        return;
+    }
+    var xhttp = CreateHttpRequest(this);
+    var data = JSON.stringify(this);
+    xhttp.open("GET", "/api/notes/" + this.id, true);
+    xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhttp.send(data);
+}
+
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined')
     module.exports = WorkItem;
 else

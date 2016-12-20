@@ -67,3 +67,16 @@ function IsTodayOrInPast(test) {
         && now.getDate() == test.getDate();
 
 }
+
+function Urlify(text, color) {
+//    url = text.replace(urlRegex, `<span class='span-link' href='${text}'>${text}</span>`);
+    var urlRegex =/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlRegex, function(url) {
+        var out = `<span onclick='OpenNewTab("${url}")' style='color: ${color};'>${url}</span>`;
+        return out;
+    });
+}
+function OpenNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}

@@ -1,5 +1,3 @@
-
-
 *{
   margin:0;
   padding:0;
@@ -39,6 +37,9 @@ ul li a{
   -moz-transition:-moz-transform .15s linear;
   -o-transition:-o-transform .15s linear;
   -webkit-transition:-webkit-transform .15s linear;
+}
+.link{
+  color:orangered;
 }
 ul li{
   margin:0.2em;
@@ -101,7 +102,7 @@ ol li a{color:#fff;}
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 10; /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
@@ -125,7 +126,7 @@ ol li a{color:#fff;}
     color:#000;
     background:#ffc;
     display:block;
-    height:26em;
+    height:46em;
     width:70em;
     padding:1em;
     -moz-box-shadow:5px 5px 7px rgba(33,33,33,1);
@@ -141,6 +142,7 @@ ol li a{color:#fff;}
     text-align: left;
     font-size:60%;
     overflow: auto;
+
     }
 /* The Close Button */
 .close {
@@ -156,9 +158,6 @@ ol li a{color:#fff;}
     text-decoration: none;
     cursor: pointer;
 }
-
-
-
 
 
 

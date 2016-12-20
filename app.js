@@ -6,29 +6,13 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var routes = require('./routes/index');
 var SignedRequest = require('./auth/SignedRequest');
+var Configuration = require('./config');
 
 
-var testConfig = {
-    appId: "1817968725151384",
-    secret: "7142f66c6459e268c013ed6fdb477ebb"
-}
-var prodConfig = {
-    appId: "1817608658520724",
-    secret: "2d698b20184a3f7f0e760baec66c4aff"
-}
-var config = {
-    dev: testConfig,
-    prod: prodConfig
-}
+var activeConfig = (new Configuration()).ActiveConfiguration();
 
-var CONFIG_NAME = "prod";
-var PORT = 3000;
-var activeConfig = config[CONFIG_NAME];
 
 console.log("Active Config: " + JSON.stringify(activeConfig));
-
-var authCookieMaxAge = 900000;
-
 
 var app = express();
 app.set('views', path.join(__dirname, 'views'));
@@ -65,8 +49,8 @@ app.post('/auth', function(req, res, next) {
    var auth = v.FbVerify(activeConfig, req);
    
    if (auth.status == true) {
-       res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
-       res.cookie('user_id', auth.user_id, { maxAge: authCookieMaxAge, httpOnly: true });
+       res.cookie('kauth', auth.data, { maxAge: activeConfig.authCookieMaxAge, httpOnly: true });
+       res.cookie('user_id', auth.user_id, { maxAge: activeConfig.authCookieMaxAge, httpOnly: true });
        res.status = 200;
        res.s
    } else {
@@ -97,8 +81,8 @@ app.use(function(req, res, next) {
             err.status = 401;
             return;
         } else {
-            res.cookie('kauth', auth.data, { maxAge: authCookieMaxAge, httpOnly: true });
-            res.cookie('user_id', auth.user_id, { maxAge: authCookieMaxAge, httpOnly: true });
+            res.cookie('kauth', auth.data, { maxAge: activeConfig.authCookieMaxAge, httpOnly: true });
+            res.cookie('user_id', auth.user_id, { maxAge: activeConfig.authCookieMaxAge, httpOnly: true });
             next();
         }
     }
@@ -118,8 +102,8 @@ app.use( function(req, res, next) {
 });
 
 
-app.listen(PORT, function () {
-  console.log('Example app listening on port ' + PORT);
+app.listen(activeConfig.port, function () {
+  console.log('Example app listening on port ' + activeConfig.port);
 })
 
 

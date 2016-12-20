@@ -63,7 +63,24 @@
                         <td><input  id="txt-update-description" type="text" class="input-field" style="width: 500px; height:150px;"/></td></tr>
                     <tr><td></td>
                         <td><input  id="btn-update" type="button" value="Submit" style="float:right" onclick="UpdateTheTask();"/></td></tr>
+                    <tr><td>
+                    <tr><td><label class="input-label">Note:</label></td>
+                        <td><input  id="txt-update-note" type="text" class="input-field" style="width: 500px; height:50px;"/></td></tr>
+                    <tr><td></td>
+                        <td><input  id="btn-update" type="button" value="Submit" style="float:right" onclick="UpdateNote();"/></td></tr>
+                    <tr><td>
                 </table>
+                <table style="border:1pt solid black">
+                        <thead>
+                            <tr style="border:1pt solid black">
+                                <td style="border:1pt solid black" >Name</td>
+                                <td style="border:1pt solid black" >Date</td>
+                                <td style="border:1pt solid black">Note</td>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-notes">
+                        </tbody>
+                </table>   
             </div>
             <div  style="float:right;">
                 <span class="close" style="position:relative; top:-20px; right:-10px;font:arial;">x</span>
@@ -105,6 +122,10 @@
             CreateColumn('columns', column); 
         });
 
+    function UpdateNote() {
+        alert('Create a note');
+    }
+        
     function CreateTask() {
         var wi = new WorkItem();
         wi.error = function(response) {
@@ -202,16 +223,37 @@
     }
 
 
-function LookupUser() {
-    var t = new Table();
-    t.success = function(response) {
-        SetValueById("person_name", response.data.name);
-    };
-    t.error = function(response) {
-        HandleError("Couldn't load person");
-    };
-    t.FindOne('person', 'fb_id', fbId);    
-}
+    function LookupUser() {
+        var t = new Table();
+        t.success = function(response) {
+            SetValueById("person_name", response.data.name);
+        };
+        t.error = function(response) {
+            HandleError("Couldn't load person");
+        };
+        t.FindOne('person', 'fb_id', fbId);    
+    }
+
+    function ListNotes(wid) {
+        var tbl = document.getElementById("tbl-notes");
+        var wi = new WorkItem();
+        wi.id = wid;
+
+        wi.error = function(response) {
+            HandleError("Could not retreive record(s)", response);
+        }
+        wi.success = function(response) {
+            response.data.forEach( function(note) {
+                var tr = tbl.appendChild(document.createElement("tr"));
+                
+                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.name));
+                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.created_date));
+                (tr.appendChild(document.createElement("td"))).appendChild(document.createTextNode(note.value));
+            });
+        }
+        wi.FindNotes();
+    }
+
 
 /***************************************************************/
 /***************************************************************/
@@ -262,10 +304,10 @@ function AppendTask(column, task) {
     } 
 
     var fields = [ 
-        ['Owner', person_name, 50]
-        , ['Due', due_date, 50, color] 
-        , ['Description', description, 200]
-        , ['Created', created_date, 50] 
+        ['Owner', person_name, 50, color, false]
+        , ['Due', due_date, 50, color, false] 
+        , ['Created', created_date, 50, color, false] 
+        , ['Description', description, 200, color, true]
         ];
     
     //TODO make this work better
@@ -276,19 +318,34 @@ function AppendTask(column, task) {
         a.setAttribute("style","display:block;height:15em;");
         a.style.height='15em';
     }
-    var t = a.appendChild(document.createElement("pre"));
-    t.setAttribute("style", "white-space: pre-wrap;");
-    fields.forEach( function(field) {
-        if (field[1]) {
-            t.appendChild(document.createElement("strong")).appendChild(document.createTextNode(field[0] + ": "));
-            if (field[3]) {
-                var style= a.getAttribute("style")
-                a.setAttribute("style",style + "color:" + color + ";");
-                a.style.color=color;   
+    var p = a.appendChild(document.createElement("p"));
+
+    p.setAttribute("style", "white-space: pre-wrap;");
+    var id = "sticky-" + task.id;
+    p.setAttribute("id", "sticky-" + task.id);
+
+        var innerHtml = "";
+        fields.forEach( function(field) {
+            if (field[1]) {
+                var label = `<strong>${field[0]}:&nbsp;</strong>`;
+                var text = field[1];
+
+                //URLifly
+                if (field[4]) {
+                    text = Urlify(text, "#0000ff");
+                }
+                var text = `<span style='${field[3]}' >` + text + "</span>";
+                var html = document.getElementById(id);
+                innerHtml += label + text + "<br/>";
             }
-            t.appendChild(document.createTextNode(field[1].substring(0,field[2]) + "\n"));
-        }
-    });
+        });
+        p.innerHTML = innerHtml;
+        /*
+        var links = document.querySelectorAll(".span-link");
+        [].forEach.call(links, function(link) {
+            link.onclick = function() {window.location = link.attributes['href'].nodeValue;}
+        });
+*/
 
     li.addEventListener('dragstart', taskDragStart, false);
     li.addEventListener('drag', taskDrag, false);
@@ -323,6 +380,7 @@ function ShowUpdateUi(e) {
             SetValueById("txt-update-id", response.data.id);
             SetValueById("txt-update-due_date", response.data.due_date);
             SetValueById("txt-update-description", response.data.description);
+            ListNotes(response.data.id);
         }
         wi.FindWorkItem();
     }
